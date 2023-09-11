@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService;
 using ProductivityTrackerService.Configuration;
+using ProductivityTrackerService.Data;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostBuilderContext, services) =>
@@ -7,6 +9,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         var dayEntriesConsumerConfig = hostBuilderContext
             .Configuration.GetSection("DayEntriesConsumer")
             .Get<ConsumerConfiguration>();
+
+        var configuration = hostBuilderContext.Configuration;
+
+        services.AddDbContext<ProductivityServiceDbContext>(
+            options => options.UseSqlServer(configuration["ConnectionStrings:ProductivityServiceDb"]));
 
         services.AddHostedService(serviceProvider =>
         {
