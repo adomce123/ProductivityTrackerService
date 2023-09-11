@@ -1,33 +1,28 @@
 using Confluent.Kafka;
+using ProductivityTrackerService.Configuration;
 
 namespace ProductivityTrackerService
 {
     public class DayEntryConsumer : BackgroundService
     {
         private readonly ILogger<DayEntryConsumer> _logger;
-        private readonly IConfiguration _consumerConfig;
+        private readonly ConsumerConfiguration _consumerConfiguration;
 
-        public DayEntryConsumer(ILogger<DayEntryConsumer> logger, IConfiguration config)
+        public DayEntryConsumer(
+            ILogger<DayEntryConsumer> logger, ConsumerConfiguration consumerConfiguration)
         {
             _logger = logger;
-            _consumerConfig = config;
+            _consumerConfiguration = consumerConfiguration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
-                var topic = _consumerConfig.GetValue<string>("Topic");
-
-                var consumerConfig = new ConsumerConfig
-                {
-                    GroupId = _consumerConfig.GetValue<string>("ConsumerName"),
-                    BootstrapServers = _consumerConfig.GetValue<string>("Broker"),
-                    AutoOffsetReset = AutoOffsetReset.Latest
-                };
-
-                using var consumer = new ConsumerBuilder<Null, string>(consumerConfig).Build();
-                consumer.Subscribe(topic);
+                using var consumer = 
+                    new ConsumerBuilder<Null, string>(_consumerConfiguration.ConsumerConfig).Build();
+                
+                consumer.Subscribe(_consumerConfiguration.Topic);
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
