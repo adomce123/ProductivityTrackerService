@@ -6,6 +6,7 @@ using ProductivityTrackerService;
 using ProductivityTrackerService.Data;
 using ProductivityTrackerService.Repositories;
 using ProductivityTrackerService.Services;
+using Serilog;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(builder =>
@@ -38,6 +39,9 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddHostedService<DayEntryConsumer>();
     })
+    .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
+    .ReadFrom.Configuration(hostingContext.Configuration)
+    .Enrich.FromLogContext())
     .Build();
 
 await host.RunAsync();
