@@ -1,17 +1,29 @@
 ﻿using ProductivityTrackerService.Data;
+using ProductivityTrackerService.Models;
+using ProductivityTrackerService.Models.Extensions;
+using ProductivityTrackerService.Repositories;
 
 namespace ProductivityTrackerService.Services
 {
     public class DayEntriesService : IDayEntriesService
     {
-        public Task<IEnumerable<DayEntryEntity>> GetDayEntriesAsync()
+        private readonly IDayEntriesRepository _dayEntriesRepository;
+
+        public DayEntriesService(IDayEntriesRepository dayEntriesRepository)
         {
-            throw new NotImplementedException();
+            _dayEntriesRepository = dayEntriesRepository;
         }
 
-        public Task InsertDayEntriesAsync(IEnumerable<DayEntryEntity> dayEntries)
+        public async Task<IEnumerable<DayEntryEntity>> GetDayEntriesAsync()
         {
-            throw new NotImplementedException();
+            return await _dayEntriesRepository.GetDayEntriesAsync();
+        }
+
+        public async Task InsertDayEntriesAsync(IEnumerable<DayEntryDto> dayEntryDtos)
+        {
+            var dayEntryEntities = dayEntryDtos.ToEntities();
+
+            await _dayEntriesRepository.InsertDayEntriesAsync(dayEntryEntities);
         }
     }
 }
