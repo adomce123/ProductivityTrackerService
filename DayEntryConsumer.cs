@@ -26,7 +26,8 @@ namespace ProductivityTrackerService
         {
 
             var consumerConfiguration = _configuration.GetSection("DayEntriesConsumer")
-                .Get<ConsumerConfiguration>();
+                .Get<ConsumerConfiguration>() 
+                ?? throw new ArgumentException("Were not able to Consumer configuration");
 
             try
             {
