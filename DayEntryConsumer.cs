@@ -1,5 +1,4 @@
 using Confluent.Kafka;
-using Microsoft.Extensions.DependencyInjection;
 using ProductivityTrackerService.Configuration;
 using ProductivityTrackerService.Models;
 using ProductivityTrackerService.Services;
@@ -45,7 +44,7 @@ namespace ProductivityTrackerService
 
                     _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-                    var response = await Task.Run(() => consumer.Consume(stoppingToken), stoppingToken);
+                    var response = await Task.Run(() => consumer.Consume(stoppingToken), stoppingToken); // what is this
 
                     if (response.Message != null)
                     {

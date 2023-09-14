@@ -3,7 +3,6 @@ using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService;
-using ProductivityTrackerService.Configuration;
 using ProductivityTrackerService.Data;
 using ProductivityTrackerService.Repositories;
 using ProductivityTrackerService.Services;
@@ -15,10 +14,6 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((hostBuilderContext, services) =>
     {
-        var dayEntriesConsumerConfig = hostBuilderContext
-            .Configuration.GetSection("DayEntriesConsumer")
-            .Get<ConsumerConfiguration>();
-
         var configuration = hostBuilderContext.Configuration;
 
         var connectionString = configuration["ConnectionStrings:ProductivityServiceDb"];
@@ -34,10 +29,12 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
-        //RecurringJob.AddOrUpdate<IDayEntriesService>(
-        //"get_all_day_entries",
-        //_ => _.GetDayEntriesAsync(),
-        //Cron.Minutely());
+        services.AddHangfireServer();
+
+        RecurringJob.AddOrUpdate<IDayEntriesService>(
+        "get_all_day_entries",
+        _ => _.GetDayEntriesAsync(),
+        Cron.Daily());
 
         services.AddHostedService<DayEntryConsumer>();
     })
