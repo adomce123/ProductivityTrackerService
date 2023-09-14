@@ -39,18 +39,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         //_ => _.GetDayEntriesAsync(),
         //Cron.Minutely());
 
-        services.AddHostedService(serviceProvider =>
-        {
-            var logger = serviceProvider.GetService<ILogger<DayEntryConsumer>>()
-                ?? throw new ArgumentException("Logger not implemented");
-
-            using (var scope = serviceProvider.CreateScope())
-            {
-                var dayEntriesService = scope.ServiceProvider.GetRequiredService<IDayEntriesService>();
-
-                return new DayEntryConsumer(logger, dayEntriesConsumerConfig, dayEntriesService);
-            }
-        });
+        services.AddHostedService<DayEntryConsumer>();
     })
     .Build();
 
