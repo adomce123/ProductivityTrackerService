@@ -24,9 +24,11 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddDbContext<ProductivityServiceDbContext>(
             options => options.UseSqlServer(connectionString));
 
+        services.AddScoped<IDayEntriesRepository, DayEntriesRepository>();
+
         services.AddScoped<IDayEntriesService, DayEntriesService>();
 
-        services.AddScoped<IDayEntriesRepository, DayEntriesRepository>();
+        services.AddScoped<IMessageProcessor, MessageProcessor>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
@@ -37,7 +39,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         _ => _.GetDayEntriesAsync(),
         Cron.Daily());
 
-        services.AddHostedService<DayEntryConsumer>();
+        services.AddHostedService<MessageConsumer>();
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
