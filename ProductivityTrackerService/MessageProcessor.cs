@@ -9,44 +9,43 @@ namespace ProductivityTrackerService
     public class MessageProcessor : IMessageProcessor
     {
         private readonly IDayEntriesService _dayEntriesService;
-        private readonly List<DayEntryDto> _dayEntriesList;
         private const int BatchSize = 5;
+
+        public List<DayEntryDto> DayEntriesList { get; set; } = new List<DayEntryDto>();
 
         public MessageProcessor(IDayEntriesService dayEntriesService)
         {
             _dayEntriesService = dayEntriesService;
-
-            _dayEntriesList = new List<DayEntryDto>();
         }
 
         public async Task ProcessAsync(ConsumeResult<Null, string> response)
         {
-            if (response.IsPartitionEOF && _dayEntriesList.Count == 0)
+            if (response.IsPartitionEOF && DayEntriesList.Count == 0)
                 return;
 
-            if (response.IsPartitionEOF && _dayEntriesList.Count > 0)
+            if (response.IsPartitionEOF && DayEntriesList.Count > 0)
             {
-                await _dayEntriesService.InsertDayEntriesAsync(_dayEntriesList);
+                await _dayEntriesService.InsertDayEntriesAsync(DayEntriesList);
 
-                _dayEntriesList.Clear();
+                DayEntriesList.Clear();
 
                 return;
             }
 
-            if (_dayEntriesList.Count == BatchSize)
+            if (DayEntriesList.Count == BatchSize)
             {
-                await _dayEntriesService.InsertDayEntriesAsync(_dayEntriesList);
+                await _dayEntriesService.InsertDayEntriesAsync(DayEntriesList);
 
-                _dayEntriesList.Clear();
+                DayEntriesList.Clear();
             }
 
             var dayEntry =
-                JsonSerializer.Deserialize<DayEntryDto>(
-                    response.Message.Value,
-                    SerializerConfiguration.DefaultSerializerOptions)
-                ?? throw new ArgumentException("Were not able to deserialize day entries");
+                    JsonSerializer.Deserialize<DayEntryDto>(
+                        response.Message.Value,
+                        SerializerConfiguration.DefaultSerializerOptions)
+                    ?? throw new ArgumentException("Were not able to deserialize day entries");
 
-            _dayEntriesList.Add(dayEntry);
+            DayEntriesList.Add(dayEntry);
         }
     }
 }
