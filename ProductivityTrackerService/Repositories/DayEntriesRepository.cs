@@ -6,21 +6,23 @@ namespace ProductivityTrackerService.Repositories
 {
     public class DayEntriesRepository : IDayEntriesRepository
     {
-        private readonly ProductivityServiceDbContext _dbContext;
+        private readonly IDbContextFactory<ProductivityServiceDbContext> _dbContextFactory;
 
-        public DayEntriesRepository(ProductivityServiceDbContext dbContext)
+        public DayEntriesRepository(IDbContextFactory<ProductivityServiceDbContext> dbContextFactory)
         {
-            _dbContext = dbContext;
+            _dbContextFactory = dbContextFactory;
         }
 
         public async Task<IEnumerable<DayEntryEntity>> GetDayEntriesAsync()
         {
-            return await _dbContext.DayEntries.OrderBy(entry => entry.Id).ToListAsync();
+            using var context = _dbContextFactory.CreateDbContext();
+            return await context.DayEntries.OrderBy(entry => entry.Id).ToListAsync();
         }
 
         public async Task InsertDayEntriesAsync(IEnumerable<DayEntryEntity> dayEntries)
         {
-            await _dbContext.BulkInsertAsync(dayEntries);
+            using var context = _dbContextFactory.CreateDbContext();
+            await context.BulkInsertAsync(dayEntries);
         }
     }
 }

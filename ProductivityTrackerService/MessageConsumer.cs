@@ -7,16 +7,16 @@ namespace ProductivityTrackerService
     {
         private readonly ILogger<MessageConsumer> _logger;
         private readonly IConfiguration _configuration;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IMessageProcessor _messageProcessor;
 
         public MessageConsumer(
             ILogger<MessageConsumer> logger, 
             IConfiguration consumerConfiguration,
-            IServiceScopeFactory serviceScopeFactory)
+            IMessageProcessor messageProcessor)
         {
             _logger = logger;
             _configuration = consumerConfiguration;
-            _serviceScopeFactory = serviceScopeFactory;
+            _messageProcessor = messageProcessor;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -30,20 +30,16 @@ namespace ProductivityTrackerService
 
             consumer.Subscribe(consumerConfiguration.Topic);
 
-            using var scope = _serviceScopeFactory.CreateScope();
-
-            var messageProcessor = scope.ServiceProvider.GetService<IMessageProcessor>()
-                ?? throw new ArgumentException("Were not able to create scoped Message processor");
-
             try
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    var response = await Task.Run(() => consumer.Consume(stoppingToken), stoppingToken); // what is this
+                    var response = await Task.Run(() => consumer
+                        .Consume(stoppingToken), stoppingToken);
 
                     _logger.LogInformation($"Message consumed: {response.Message}");
 
-                    await messageProcessor.ProcessAsync(response);
+                    await _messageProcessor.ProcessAsync(response);
                 }
             }
             catch (OperationCanceledException) 
