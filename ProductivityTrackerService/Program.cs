@@ -21,23 +21,23 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         JobStorage.Current = new SqlServerStorage(connectionString);
 
-        services.AddDbContext<ProductivityServiceDbContext>(
+        services.AddDbContextFactory<ProductivityServiceDbContext>(
             options => options.UseSqlServer(connectionString));
 
-        services.AddScoped<IDayEntriesRepository, DayEntriesRepository>();
+        services.AddSingleton<IDayEntriesRepository, DayEntriesRepository>();
 
-        services.AddScoped<IDayEntriesService, DayEntriesService>();
+        services.AddSingleton<IDayEntriesService, DayEntriesService>();
 
-        services.AddScoped<IMessageProcessor, MessageProcessor>();
+        services.AddSingleton<IMessageProcessor, MessageProcessor>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
         services.AddHangfireServer();
 
-        RecurringJob.AddOrUpdate<IDayEntriesService>(
-        "get_all_day_entries",
-        _ => _.GetDayEntriesAsync(),
-        Cron.Daily());
+        //RecurringJob.AddOrUpdate<IDayEntriesService>(
+        //"get_all_day_entries",
+        //_ => _.GetDayEntriesAsync(),
+        //Cron.Daily());
 
         services.AddHostedService<MessageConsumer>();
     })
