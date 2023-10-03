@@ -94,7 +94,7 @@ namespace ProductivityTrackerService.Tests
                 IsPartitionEOF = false,
                 Message = new Message<Null, string>
                 {
-                    Key = null,
+                    Key = null!,
                     Value = JsonSerializer.Serialize(dayEntryDto)
                 }
             };
@@ -128,7 +128,7 @@ namespace ProductivityTrackerService.Tests
                 IsPartitionEOF = false,
                 Message = new Message<Null, string>
                 {
-                    Key = null,
+                    Key = null!,
                     Value = "test"
                 }
             };
