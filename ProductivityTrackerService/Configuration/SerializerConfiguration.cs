@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace ProductivityTrackerService.Configuration
 {
@@ -8,6 +9,7 @@ namespace ProductivityTrackerService.Configuration
             new JsonSerializerOptions()
             {
                 PropertyNameCaseInsensitive = true,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
     }
