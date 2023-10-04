@@ -3,6 +3,7 @@ using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService;
+using ProductivityTrackerService.Configuration;
 using ProductivityTrackerService.Data;
 using ProductivityTrackerService.Repositories;
 using ProductivityTrackerService.Services;
@@ -19,6 +20,8 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         var connectionString = configuration["ConnectionStrings:ProductivityServiceDb"];
 
+        services.Configure<ConsumerConfiguration>(configuration.GetSection("DayEntriesConsumer"));
+
         JobStorage.Current = new SqlServerStorage(connectionString);
 
         services.AddDbContextFactory<ProductivityServiceDbContext>(
@@ -29,6 +32,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IDayEntriesService, DayEntriesService>();
 
         services.AddSingleton<IMessageProcessor, MessageProcessor>();
+
+        services.AddSingleton<IKafkaConsumer,  KafkaConsumer>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
