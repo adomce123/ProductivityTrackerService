@@ -86,7 +86,8 @@ namespace ProductivityTrackerService.Tests
                 l => l.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.IsAny<It.IsAnyType>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString()
+                        .Contains("Message processing failed with exception")),
                     It.IsAny<Exception>(),
                     (Func<It.IsAnyType, Exception, string>)It.IsAny<object>()), Times.Once);
 
