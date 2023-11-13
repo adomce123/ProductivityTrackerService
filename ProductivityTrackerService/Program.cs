@@ -27,13 +27,13 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddDbContextFactory<ProductivityServiceDbContext>(
             options => options.UseSqlServer(connectionString));
 
-        services.AddSingleton<IDayEntriesRepository, DayEntriesRepository>();
+        services.AddScoped<IDayEntriesRepository, DayEntriesRepository>();
 
-        services.AddSingleton<IDayEntriesService, DayEntriesService>();
+        services.AddScoped<IDayEntriesService, DayEntriesService>();
 
-        services.AddSingleton<IMessageProcessor, MessageProcessor>();
+        services.AddScoped<IMessageProcessor, MessageProcessor>();
 
-        services.AddSingleton<IKafkaConsumer,  KafkaConsumer>();
+        services.AddScoped<IKafkaConsumer, KafkaConsumer>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 

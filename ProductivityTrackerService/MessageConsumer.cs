@@ -2,32 +2,39 @@ namespace ProductivityTrackerService
 {
     public class MessageConsumer : BackgroundService
     {
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<MessageConsumer> _logger;
-        private readonly IMessageProcessor _messageProcessor;
-        private readonly IKafkaConsumer _kafkaConsumer;
 
         public MessageConsumer(
-            ILogger<MessageConsumer> logger,
-            IMessageProcessor messageProcessor,
-            IKafkaConsumer kafkaConsumer)
+            IServiceScopeFactory scopeFactory,
+            ILogger<MessageConsumer> logger)
         {
+            _scopeFactory = scopeFactory;
             _logger = logger;
-            _messageProcessor = messageProcessor;
-            _kafkaConsumer = kafkaConsumer;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await using var serviceScope = _scopeFactory.CreateAsyncScope();
+
+            var kafkaConsumer = serviceScope.ServiceProvider
+                .GetRequiredService<IKafkaConsumer>();
+
+            var messageProcessor = serviceScope.ServiceProvider
+                .GetRequiredService<IMessageProcessor>();
+
             try
             {
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    var response = await _kafkaConsumer.ConsumeMessageAsync(stoppingToken);
+
+
+                    var response = await kafkaConsumer.ConsumeMessageAsync(stoppingToken);
                     _logger.LogInformation("Message consumed: {response.Message}", response.Message);
 
                     try
                     {
-                        await _messageProcessor.ProcessAsync(response);
+                        await messageProcessor.ProcessAsync(response);
                     }
                     catch (Exception ex)
                     {
@@ -36,21 +43,21 @@ namespace ProductivityTrackerService
                     finally
                     {
                         if (!response.IsPartitionEOF)
-                            _kafkaConsumer.StoreMessageOffset(response);
+                            kafkaConsumer.StoreMessageOffset(response);
                     }
                 }
             }
-            catch (OperationCanceledException) 
+            catch (OperationCanceledException)
             {
                 _logger.LogInformation("Operation was cancelled");
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _logger.LogCritical(ex.Message, "A critical exception was thrown. Discarding message");
             }
             finally
             {
-                _kafkaConsumer.DisposeConsumer();
+                kafkaConsumer.DisposeConsumer();
             }
         }
     }
