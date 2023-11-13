@@ -30,7 +30,7 @@ namespace ProductivityTrackerService
             _consumer.StoreOffset(consumeResult);
         }
 
-        public void DisposeConsumer()
+        public void Dispose()
         {
             _consumer.Dispose();
         }
