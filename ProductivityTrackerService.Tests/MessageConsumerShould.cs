@@ -1,5 +1,5 @@
-﻿using AutoFixture;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
@@ -14,13 +14,30 @@ namespace ProductivityTrackerService.Tests
         private readonly MessageConsumer _messageConsumer;
 
         public MessageConsumerShould()
-        {   
+        {
             _loggerMock = new Mock<ILogger<MessageConsumer>>();
             _messageProcessorMock = new Mock<IMessageProcessor>();
             _kafkaConsumerMock = new Mock<IKafkaConsumer>();
 
+            var serviceProvider = new Mock<IServiceProvider>();
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IKafkaConsumer)))
+                .Returns(_kafkaConsumerMock.Object);
+
+            serviceProvider
+                .Setup(x => x.GetService(typeof(IMessageProcessor)))
+                .Returns(_messageProcessorMock.Object);
+
+            var serviceScope = new Mock<IServiceScope>();
+            serviceScope.Setup(x => x.ServiceProvider).Returns(serviceProvider.Object);
+
+            var serviceScopeFactory = new Mock<IServiceScopeFactory>();
+            serviceScopeFactory
+                .Setup(x => x.CreateScope())
+                .Returns(serviceScope.Object);
+
             _messageConsumer = new MessageConsumer(
-                _loggerMock.Object, _messageProcessorMock.Object, _kafkaConsumerMock.Object);
+                serviceScopeFactory.Object, _loggerMock.Object);
         }
 
         [Fact]
@@ -45,7 +62,7 @@ namespace ProductivityTrackerService.Tests
 
             //ASSERT
             _kafkaConsumerMock
-                .Verify(service => service.ConsumeMessageAsync(It.IsAny<CancellationToken>()), 
+                .Verify(service => service.ConsumeMessageAsync(It.IsAny<CancellationToken>()),
                 Times.Once());
 
             _messageProcessorMock

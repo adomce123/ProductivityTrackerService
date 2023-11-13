@@ -57,7 +57,7 @@ namespace ProductivityTrackerService
             }
             finally
             {
-                kafkaConsumer.DisposeConsumer();
+                kafkaConsumer.Dispose();
             }
         }
     }
