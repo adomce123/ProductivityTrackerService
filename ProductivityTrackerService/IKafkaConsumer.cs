@@ -2,7 +2,7 @@
 
 namespace ProductivityTrackerService
 {
-    public interface IKafkaConsumer : IDisposable
+    public interface IKafkaConsumer
     {
         Task<ConsumeResult<Null, string>> ConsumeMessageAsync(CancellationToken stoppingToken);
         void StoreMessageOffset(ConsumeResult<Null, string> consumeResult);

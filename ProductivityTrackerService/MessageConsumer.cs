@@ -55,10 +55,6 @@ namespace ProductivityTrackerService
             {
                 _logger.LogCritical(ex.Message, "A critical exception was thrown. Discarding message");
             }
-            finally
-            {
-                kafkaConsumer.Dispose();
-            }
         }
     }
 }
