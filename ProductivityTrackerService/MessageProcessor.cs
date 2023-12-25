@@ -1,7 +1,7 @@
 ﻿using Confluent.Kafka;
 using ProductivityTrackerService.Configuration;
-using ProductivityTrackerService.Models;
-using ProductivityTrackerService.Services;
+using ProductivityTrackerService.Core.Entities;
+using ProductivityTrackerService.Core.Interfaces;
 using System.Text.Json;
 
 namespace ProductivityTrackerService

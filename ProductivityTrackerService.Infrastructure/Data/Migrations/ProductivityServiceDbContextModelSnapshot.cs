@@ -2,13 +2,10 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ProductivityTrackerService.Data;
 
 #nullable disable
 
-namespace ProductivityTrackerService.Migrations
+namespace ProductivityTrackerService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ProductivityServiceDbContext))]
     partial class ProductivityServiceDbContextModelSnapshot : ModelSnapshot

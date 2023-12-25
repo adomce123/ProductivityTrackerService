@@ -1,3 +1,5 @@
+using ProductivityTrackerService.Core.Interfaces;
+
 namespace ProductivityTrackerService
 {
     public class MessageConsumer : BackgroundService

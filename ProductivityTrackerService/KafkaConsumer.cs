@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Configuration;
+using ProductivityTrackerService.Core.Interfaces;
 
 namespace ProductivityTrackerService
 {

@@ -9,10 +9,8 @@
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
-    <PackageReference Include="EFCore.BulkExtensions" Version="8.0.0" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.6" />
     <PackageReference Include="Hangfire.SqlServer" Version="1.8.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -22,5 +20,10 @@
     <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
     <PackageReference Include="serilog.sinks.console" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProductivityTrackerService.Core\ProductivityTrackerService.Core.csproj" />
+    <ProjectReference Include="..\ProductivityTrackerService.Infrastructure\ProductivityTrackerService.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
+using ProductivityTrackerService.Core.Interfaces;
 using Xunit;
 
 namespace ProductivityTrackerService.Tests

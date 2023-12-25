@@ -1,11 +1,10 @@
 using AutoFixture;
 using FluentAssertions;
 using Moq;
-using ProductivityTrackerService.Data;
-using ProductivityTrackerService.Models;
-using ProductivityTrackerService.Models.Extensions;
-using ProductivityTrackerService.Repositories;
-using ProductivityTrackerService.Services;
+using ProductivityTrackerService.Core.Entities;
+using ProductivityTrackerService.Core.Extensions;
+using ProductivityTrackerService.Core.Interfaces;
+using ProductivityTrackerService.Core.Services;
 using Xunit;
 
 namespace ProductivityTrackerService.Tests
@@ -68,7 +67,7 @@ namespace ProductivityTrackerService.Tests
 
             var expectedEntities = new List<DayEntryEntity>();
 
-            foreach(var dayEntry in dayEntryDtos)
+            foreach (var dayEntry in dayEntryDtos)
             {
                 expectedEntities.Add(new DayEntryEntity
                 {

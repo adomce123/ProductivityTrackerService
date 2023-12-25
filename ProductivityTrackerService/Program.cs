@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService;
 using ProductivityTrackerService.Configuration;
-using ProductivityTrackerService.Data;
-using ProductivityTrackerService.Repositories;
-using ProductivityTrackerService.Services;
+using ProductivityTrackerService.Core.Interfaces;
+using ProductivityTrackerService.Core.Services;
+using ProductivityTrackerService.Infrastructure.Data;
 using Serilog;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -39,10 +39,10 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddHangfireServer();
 
-        //RecurringJob.AddOrUpdate<IDayEntriesService>(
-        //"get_all_day_entries",
-        //_ => _.GetDayEntriesAsync(),
-        //Cron.Daily());
+        RecurringJob.AddOrUpdate<IDayEntriesService>(
+        "get_all_day_entries",
+        _ => _.GetDayEntriesAsync(),
+        Cron.Daily());
 
         services.AddHostedService<MessageConsumer>();
     })
