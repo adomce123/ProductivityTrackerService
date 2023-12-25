@@ -5,7 +5,11 @@ VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductivityTrackerService", "ProductivityTrackerService\ProductivityTrackerService.csproj", "{330F2C76-F04D-48F3-9318-91F15CD07903}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductivityTrackerService.Tests", "ProductivityTrackerService.Tests\ProductivityTrackerService.Tests.csproj", "{D7EF305F-8BE2-43A7-9A18-56BFC10792EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProductivityTrackerService.Tests", "ProductivityTrackerService.Tests\ProductivityTrackerService.Tests.csproj", "{D7EF305F-8BE2-43A7-9A18-56BFC10792EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductivityTrackerService.Infrastructure", "ProductivityTrackerService.Infrastructure\ProductivityTrackerService.Infrastructure.csproj", "{BAFE6000-80DF-4598-8381-F68AF8F9CCD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductivityTrackerService.Core", "ProductivityTrackerService.Core\ProductivityTrackerService.Core.csproj", "{EC68811D-376E-4972-ABDE-8E2618E9B2CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +25,14 @@ Global
 		{D7EF305F-8BE2-43A7-9A18-56BFC10792EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D7EF305F-8BE2-43A7-9A18-56BFC10792EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D7EF305F-8BE2-43A7-9A18-56BFC10792EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAFE6000-80DF-4598-8381-F68AF8F9CCD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAFE6000-80DF-4598-8381-F68AF8F9CCD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAFE6000-80DF-4598-8381-F68AF8F9CCD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAFE6000-80DF-4598-8381-F68AF8F9CCD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC68811D-376E-4972-ABDE-8E2618E9B2CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC68811D-376E-4972-ABDE-8E2618E9B2CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC68811D-376E-4972-ABDE-8E2618E9B2CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC68811D-376E-4972-ABDE-8E2618E9B2CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

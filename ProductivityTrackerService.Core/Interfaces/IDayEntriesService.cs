@@ -1,7 +1,8 @@
-﻿using ProductivityTrackerService.Data;
-using ProductivityTrackerService.Models;
+﻿using ProductivityTrackerService.Core.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Services
+namespace ProductivityTrackerService.Core.Interfaces
 {
     public interface IDayEntriesService
     {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ProductivityTrackerService.Core.Entities;
 
-namespace ProductivityTrackerService.Data
+namespace ProductivityTrackerService.Infrastructure.Data
 {
     public class ProductivityServiceDbContext : DbContext
     {

@@ -1,6 +1,8 @@
-﻿using ProductivityTrackerService.Data;
+﻿using ProductivityTrackerService.Core.Entities;
+using System;
+using System.Collections.Generic;
 
-namespace ProductivityTrackerService.Models.Extensions
+namespace ProductivityTrackerService.Core.Extensions
 {
     public static class DayEntriesExtensions
     {

@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService
+namespace ProductivityTrackerService.Core.Interfaces
 {
     public interface IMessageProcessor
     {

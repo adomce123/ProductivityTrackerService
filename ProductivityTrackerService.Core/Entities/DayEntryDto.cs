@@ -1,15 +1,23 @@
-﻿namespace ProductivityTrackerService.Data
+﻿using System;
+using System.Text.Json.Serialization;
+
+namespace ProductivityTrackerService.Core.Entities
 {
-    public class DayEntryEntity
+    public class DayEntryDto
     {
         public int Id { get; set; }
-        public DateTime AddedTimestamp { get; set; }
+        [JsonRequired]
         public DateTime Date { get; set; }
         public string? WeekDay { get; set; }
+        [JsonRequired]
         public TimeSpan WakeUpTime { get; set; }
+        [JsonRequired]
         public TimeSpan ScreenTime { get; set; }
+        [JsonRequired]
         public TimeSpan ProjectWork { get; set; }
+        [JsonRequired]
         public bool WentToGym { get; set; }
+        [JsonRequired]
         public int Score { get; set; }
         public string? Description { get; set; }
     }

@@ -1,10 +1,8 @@
 ﻿using AutoFixture;
 using Confluent.Kafka;
 using Moq;
-using ProductivityTrackerService.Data;
-using ProductivityTrackerService.Models;
-using ProductivityTrackerService.Repositories;
-using ProductivityTrackerService.Services;
+using ProductivityTrackerService.Core.Entities;
+using ProductivityTrackerService.Core.Interfaces;
 using System.Text.Json;
 using Xunit;
 
@@ -100,8 +98,8 @@ namespace ProductivityTrackerService.Tests
             };
 
             _messageProcessor.DayEntriesList.AddRange(new List<DayEntryDto>
-            { 
-                new DayEntryDto(), 
+            {
+                new DayEntryDto(),
                 new DayEntryDto(),
                 new DayEntryDto(),
                 new DayEntryDto(),

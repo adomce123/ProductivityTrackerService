@@ -1,9 +1,10 @@
-﻿using ProductivityTrackerService.Data;
-using ProductivityTrackerService.Models;
-using ProductivityTrackerService.Models.Extensions;
-using ProductivityTrackerService.Repositories;
+﻿using ProductivityTrackerService.Core.Entities;
+using ProductivityTrackerService.Core.Extensions;
+using ProductivityTrackerService.Core.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Services
+namespace ProductivityTrackerService.Core.Services
 {
     public class DayEntriesService : IDayEntriesService
     {

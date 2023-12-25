@@ -1,8 +1,12 @@
 ﻿using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
-using ProductivityTrackerService.Data;
+using ProductivityTrackerService.Core.Entities;
+using ProductivityTrackerService.Core.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Repositories
+namespace ProductivityTrackerService.Infrastructure.Data
 {
     public class DayEntriesRepository : IDayEntriesRepository
     {

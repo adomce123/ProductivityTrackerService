@@ -1,6 +1,8 @@
 ﻿using Confluent.Kafka;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService
+namespace ProductivityTrackerService.Core.Interfaces
 {
     public interface IKafkaConsumer
     {

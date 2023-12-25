@@ -1,6 +1,8 @@
-﻿using ProductivityTrackerService.Data;
+﻿using ProductivityTrackerService.Core.Entities;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Repositories
+namespace ProductivityTrackerService.Core.Interfaces
 {
     public interface IDayEntriesRepository
     {
