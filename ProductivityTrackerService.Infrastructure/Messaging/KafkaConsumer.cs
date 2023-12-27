@@ -1,9 +1,11 @@
 ﻿using Confluent.Kafka;
 using Microsoft.Extensions.Options;
-using ProductivityTrackerService.Configuration;
+using ProductivityTrackerService.Core.Configuration;
 using ProductivityTrackerService.Core.Interfaces;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace ProductivityTrackerService
+namespace ProductivityTrackerService.Infrastructure.Messaging
 {
     public class KafkaConsumer : IKafkaConsumer
     {

@@ -1,10 +1,10 @@
 ﻿using Confluent.Kafka;
 
-namespace ProductivityTrackerService.Configuration
+namespace ProductivityTrackerService.Core.Configuration
 {
     public class ConsumerConfiguration
     {
-        public string? Topic {  get; set; }
+        public string? Topic { get; set; }
         public ConsumerConfig? ConsumerConfig { get; set; }
     }
 }

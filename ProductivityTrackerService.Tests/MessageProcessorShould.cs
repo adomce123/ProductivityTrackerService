@@ -13,7 +13,7 @@ namespace ProductivityTrackerService.Tests
         private readonly Fixture _fixture;
         private readonly Mock<IDayEntriesRepository> _dayEntriesRepositoryMock;
         private readonly Mock<IDayEntriesService> _dayEntriesServiceMock;
-        private readonly MessageProcessor _messageProcessor;
+        private readonly MessageProcessorService _messageProcessor;
 
         public MessageProcessorShould()
         {
@@ -23,7 +23,7 @@ namespace ProductivityTrackerService.Tests
 
             _dayEntriesServiceMock = new Mock<IDayEntriesService>();
 
-            _messageProcessor = new MessageProcessor(_dayEntriesServiceMock.Object);
+            _messageProcessor = new MessageProcessorService(_dayEntriesServiceMock.Object);
         }
 
         [Fact]

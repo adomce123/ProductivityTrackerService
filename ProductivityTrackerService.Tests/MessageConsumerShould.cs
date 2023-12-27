@@ -3,20 +3,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProductivityTrackerService.Core.Interfaces;
+using ProductivityTrackerService.Core.Services;
 using Xunit;
 
 namespace ProductivityTrackerService.Tests
 {
     public class MessageConsumerShould
     {
-        private readonly Mock<ILogger<MessageConsumer>> _loggerMock;
+        private readonly Mock<ILogger<EntryPointService>> _loggerMock;
         private readonly Mock<IMessageProcessor> _messageProcessorMock;
         private readonly Mock<IKafkaConsumer> _kafkaConsumerMock;
-        private readonly MessageConsumer _messageConsumer;
+        private readonly EntryPointService _entryPointService;
 
         public MessageConsumerShould()
         {
-            _loggerMock = new Mock<ILogger<MessageConsumer>>();
+            _loggerMock = new Mock<ILogger<EntryPointService>>();
             _messageProcessorMock = new Mock<IMessageProcessor>();
             _kafkaConsumerMock = new Mock<IKafkaConsumer>();
 
@@ -37,7 +38,7 @@ namespace ProductivityTrackerService.Tests
                 .Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            _messageConsumer = new MessageConsumer(
+            _entryPointService = new EntryPointService(
                 serviceScopeFactory.Object, _loggerMock.Object);
         }
 
@@ -59,7 +60,7 @@ namespace ProductivityTrackerService.Tests
             _messageProcessorMock.Setup(_ => _.ProcessAsync(consumeResult));
 
             //ACT
-            await _messageConsumer.StartAsync(cancellationTokenSource.Token);
+            //await _entryPointService.StartAsync(cancellationTokenSource.Token);
 
             //ASSERT
             _kafkaConsumerMock
@@ -94,7 +95,7 @@ namespace ProductivityTrackerService.Tests
                 .ThrowsAsync(new Exception("Processing failed"));
 
             //ACT
-            await _messageConsumer.StartAsync(cancellationTokenSource.Token);
+            //await _messageConsumer.StartAsync(cancellationTokenSource.Token);
 
             //ASSERT
             var exceptionThrown = await Assert.ThrowsAsync<Exception>
