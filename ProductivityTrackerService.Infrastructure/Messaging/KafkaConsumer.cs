@@ -24,8 +24,9 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
         public async Task<ConsumeResult<Null, string>> ConsumeMessageAsync(
             CancellationToken stoppingToken)
         {
-            return await Task.Run(() => _consumer
+            var consumeResult = await Task.Run(() => _consumer
                 .Consume(stoppingToken), stoppingToken);
+            return consumeResult;
         }
 
         public void StoreMessageOffset(ConsumeResult<Null, string> consumeResult)

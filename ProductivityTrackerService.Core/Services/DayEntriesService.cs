@@ -6,15 +6,8 @@ using System.Threading.Tasks;
 
 namespace ProductivityTrackerService.Core.Services
 {
-    public class DayEntriesService : IDayEntriesService
+    public class DayEntriesService(IDayEntriesRepository _dayEntriesRepository) : IDayEntriesService
     {
-        private readonly IDayEntriesRepository _dayEntriesRepository;
-
-        public DayEntriesService(IDayEntriesRepository dayEntriesRepository)
-        {
-            _dayEntriesRepository = dayEntriesRepository;
-        }
-
         public async Task<IEnumerable<DayEntryEntity>> GetDayEntriesAsync()
         {
             return await _dayEntriesRepository.GetDayEntriesAsync();

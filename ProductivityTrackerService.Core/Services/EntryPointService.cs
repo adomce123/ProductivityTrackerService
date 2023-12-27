@@ -7,19 +7,9 @@ using System.Threading.Tasks;
 
 namespace ProductivityTrackerService.Core.Services
 {
-    public class EntryPointService : IEntryPointService
+    public class EntryPointService(
+        IServiceScopeFactory _scopeFactory, ILogger<EntryPointService> _logger) : IEntryPointService
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<EntryPointService> _logger;
-
-        public EntryPointService(
-            IServiceScopeFactory scopeFactory,
-            ILogger<EntryPointService> logger)
-        {
-            _scopeFactory = scopeFactory;
-            _logger = logger;
-        }
-
         public async Task ExecuteAsync()
         {
             await using var serviceScope = _scopeFactory.CreateAsyncScope();
@@ -34,7 +24,8 @@ namespace ProductivityTrackerService.Core.Services
             {
                 var cts = new CancellationTokenSource();
                 var response = await kafkaConsumer.ConsumeMessageAsync(cts.Token);
-                _logger.LogInformation("Message consumed: {response.Message}", response.Message);
+                if (response.Value != null)
+                    _logger.LogInformation("Message consumed: {response.Value}", response.Value);
 
                 try
                 {
