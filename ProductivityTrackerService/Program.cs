@@ -3,10 +3,11 @@ using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService;
-using ProductivityTrackerService.Configuration;
+using ProductivityTrackerService.Core.Configuration;
 using ProductivityTrackerService.Core.Interfaces;
 using ProductivityTrackerService.Core.Services;
 using ProductivityTrackerService.Infrastructure.Data;
+using ProductivityTrackerService.Infrastructure.Messaging;
 using Serilog;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -31,9 +32,11 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddScoped<IDayEntriesService, DayEntriesService>();
 
-        services.AddScoped<IMessageProcessor, MessageProcessor>();
+        services.AddScoped<IMessageProcessor, MessageProcessorService>();
 
         services.AddScoped<IKafkaConsumer, KafkaConsumer>();
+
+        services.AddSingleton<IEntryPointService, EntryPointService>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
@@ -44,7 +47,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         _ => _.GetDayEntriesAsync(),
         Cron.Daily());
 
-        services.AddHostedService<MessageConsumer>();
+        services.AddHostedService<Worker>();
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)

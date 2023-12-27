@@ -1,19 +1,22 @@
 ﻿using Confluent.Kafka;
-using ProductivityTrackerService.Configuration;
+using ProductivityTrackerService.Core.Configuration;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Interfaces;
+using System;
+using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ProductivityTrackerService
 {
-    public class MessageProcessor : IMessageProcessor
+    public class MessageProcessorService : IMessageProcessor
     {
         private readonly IDayEntriesService _dayEntriesService;
         private const int BatchSize = 5;
 
         public List<DayEntryDto> DayEntriesList { get; set; } = new List<DayEntryDto>();
 
-        public MessageProcessor(IDayEntriesService dayEntriesService)
+        public MessageProcessorService(IDayEntriesService dayEntriesService)
         {
             _dayEntriesService = dayEntriesService;
         }
