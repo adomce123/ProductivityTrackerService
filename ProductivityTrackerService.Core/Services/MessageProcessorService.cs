@@ -9,17 +9,11 @@ using System.Threading.Tasks;
 
 namespace ProductivityTrackerService
 {
-    public class MessageProcessorService : IMessageProcessor
+    public class MessageProcessorService(IDayEntriesService _dayEntriesService) : IMessageProcessor
     {
-        private readonly IDayEntriesService _dayEntriesService;
         private const int BatchSize = 5;
 
         public List<DayEntryDto> DayEntriesList { get; set; } = new List<DayEntryDto>();
-
-        public MessageProcessorService(IDayEntriesService dayEntriesService)
-        {
-            _dayEntriesService = dayEntriesService;
-        }
 
         public async Task ProcessAsync(ConsumeResult<Null, string> response)
         {

@@ -8,14 +8,14 @@ using Xunit;
 
 namespace ProductivityTrackerService.Tests
 {
-    public class MessageConsumerShould
+    public class EntryPointServiceShould
     {
         private readonly Mock<ILogger<EntryPointService>> _loggerMock;
         private readonly Mock<IMessageProcessor> _messageProcessorMock;
         private readonly Mock<IKafkaConsumer> _kafkaConsumerMock;
         private readonly EntryPointService _entryPointService;
 
-        public MessageConsumerShould()
+        public EntryPointServiceShould()
         {
             _loggerMock = new Mock<ILogger<EntryPointService>>();
             _messageProcessorMock = new Mock<IMessageProcessor>();
@@ -60,7 +60,7 @@ namespace ProductivityTrackerService.Tests
             _messageProcessorMock.Setup(_ => _.ProcessAsync(consumeResult));
 
             //ACT
-            //await _entryPointService.StartAsync(cancellationTokenSource.Token);
+            await _entryPointService.ExecuteAsync();
 
             //ASSERT
             _kafkaConsumerMock
@@ -95,7 +95,7 @@ namespace ProductivityTrackerService.Tests
                 .ThrowsAsync(new Exception("Processing failed"));
 
             //ACT
-            //await _messageConsumer.StartAsync(cancellationTokenSource.Token);
+            await _entryPointService.ExecuteAsync();
 
             //ASSERT
             var exceptionThrown = await Assert.ThrowsAsync<Exception>
