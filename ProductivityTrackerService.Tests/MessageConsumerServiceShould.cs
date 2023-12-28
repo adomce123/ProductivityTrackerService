@@ -8,16 +8,16 @@ using Xunit;
 
 namespace ProductivityTrackerService.Tests
 {
-    public class EntryPointServiceShould
+    public class MessageConsumerServiceShould
     {
-        private readonly Mock<ILogger<EntryPointService>> _loggerMock;
+        private readonly Mock<ILogger<MessageConsumerService>> _loggerMock;
         private readonly Mock<IMessageProcessor> _messageProcessorMock;
         private readonly Mock<IKafkaConsumer> _kafkaConsumerMock;
-        private readonly EntryPointService _entryPointService;
+        private readonly MessageConsumerService _messageConsumerService;
 
-        public EntryPointServiceShould()
+        public MessageConsumerServiceShould()
         {
-            _loggerMock = new Mock<ILogger<EntryPointService>>();
+            _loggerMock = new Mock<ILogger<MessageConsumerService>>();
             _messageProcessorMock = new Mock<IMessageProcessor>();
             _kafkaConsumerMock = new Mock<IKafkaConsumer>();
 
@@ -38,7 +38,7 @@ namespace ProductivityTrackerService.Tests
                 .Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            _entryPointService = new EntryPointService(
+            _messageConsumerService = new MessageConsumerService(
                 serviceScopeFactory.Object, _loggerMock.Object);
         }
 
@@ -60,7 +60,7 @@ namespace ProductivityTrackerService.Tests
             _messageProcessorMock.Setup(_ => _.ProcessAsync(consumeResult));
 
             //ACT
-            await _entryPointService.ExecuteAsync();
+            await _messageConsumerService.StartAsync(cancellationTokenSource.Token);
 
             //ASSERT
             _kafkaConsumerMock
@@ -95,7 +95,7 @@ namespace ProductivityTrackerService.Tests
                 .ThrowsAsync(new Exception("Processing failed"));
 
             //ACT
-            await _entryPointService.ExecuteAsync();
+            await _messageConsumerService.StartAsync(cancellationTokenSource.Token);
 
             //ASSERT
             var exceptionThrown = await Assert.ThrowsAsync<Exception>
