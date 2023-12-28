@@ -36,8 +36,6 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddScoped<IKafkaConsumer, KafkaConsumer>();
 
-        services.AddSingleton<IEntryPointService, EntryPointService>();
-
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
         services.AddHangfireServer();
@@ -47,7 +45,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         _ => _.GetDayEntriesAsync(),
         Cron.Daily());
 
-        services.AddHostedService<Worker>();
+        services.AddHostedService<MessageConsumerService>();
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
