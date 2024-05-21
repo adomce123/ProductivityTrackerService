@@ -32,18 +32,18 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddScoped<IDayEntriesService, DayEntriesService>();
 
-        services.AddScoped<IMessageProcessor, MessageProcessorService>();
+        services.AddSingleton<IMessageProcessor, MessageProcessorService>();
 
-        services.AddScoped<IKafkaConsumer, KafkaConsumer>();
+        services.AddSingleton<IKafkaConsumer, KafkaConsumer>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
         services.AddHangfireServer();
 
-        RecurringJob.AddOrUpdate<IDayEntriesService>(
-        "get_all_day_entries",
-        _ => _.GetDayEntriesAsync(),
-        Cron.Daily());
+        //RecurringJob.AddOrUpdate<IDayEntriesService>(
+        //"get_all_day_entries",
+        //_ => _.GetDayEntriesAsync(),
+        //Cron.Daily());
 
         services.AddHostedService<MessageConsumerService>();
     })
