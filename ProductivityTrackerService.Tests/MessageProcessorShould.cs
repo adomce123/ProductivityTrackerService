@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using Confluent.Kafka;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Interfaces;
@@ -12,7 +13,9 @@ namespace ProductivityTrackerService.Tests
     {
         private readonly Fixture _fixture;
         private readonly Mock<IDayEntriesRepository> _dayEntriesRepositoryMock;
+        private readonly CancellationToken _ctMock;
         private readonly Mock<IDayEntriesService> _dayEntriesServiceMock;
+        private readonly Mock<IServiceScopeFactory> _serviceScopeFactoryMock;
         private readonly MessageProcessorService _messageProcessor;
 
         public MessageProcessorShould()
@@ -20,10 +23,14 @@ namespace ProductivityTrackerService.Tests
             _fixture = new Fixture();
 
             _dayEntriesRepositoryMock = new Mock<IDayEntriesRepository>();
+            _ctMock = new CancellationToken();
 
             _dayEntriesServiceMock = new Mock<IDayEntriesService>();
 
-            _messageProcessor = new MessageProcessorService(_dayEntriesServiceMock.Object);
+            _serviceScopeFactoryMock = new Mock<IServiceScopeFactory>();
+
+            _messageProcessor = new MessageProcessorService(
+                _serviceScopeFactoryMock.Object, _dayEntriesServiceMock.Object);
         }
 
         [Fact]
@@ -40,12 +47,12 @@ namespace ProductivityTrackerService.Tests
             var dayEntryEntities = _fixture.Create<IEnumerable<DayEntryEntity>>();
 
             //ACT
-            await _messageProcessor.ProcessAsync(message);
+            await _messageProcessor.ProcessAsync(message, _ctMock);
 
             //ASSERT
             _dayEntriesRepositoryMock
                 .Verify(repository => repository
-                .InsertDayEntriesAsync(dayEntryEntities), Times.Never());
+                .InsertDayEntriesAsync(dayEntryEntities, _ctMock), Times.Never());
 
             Assert.Empty(_messageProcessor.DayEntriesList);
         }
@@ -61,11 +68,11 @@ namespace ProductivityTrackerService.Tests
 
             _messageProcessor.DayEntriesList.Add(new DayEntryDto());
 
-            await _messageProcessor.ProcessAsync(message);
+            await _messageProcessor.ProcessAsync(message, _ctMock);
 
             _dayEntriesServiceMock
                 .Verify(service => service
-                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>()), Times.Once());
+                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>(), _ctMock), Times.Once());
 
             Assert.Empty(_messageProcessor.DayEntriesList);
         }
@@ -107,12 +114,12 @@ namespace ProductivityTrackerService.Tests
             });
 
             //ACT
-            await _messageProcessor.ProcessAsync(message);
+            await _messageProcessor.ProcessAsync(message, _ctMock);
 
             //ASSERT
             _dayEntriesServiceMock
                 .Verify(service => service
-                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>()), Times.Once());
+                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>(), _ctMock), Times.Once());
 
             Assert.True(_messageProcessor.DayEntriesList.Count == 1);
         }
@@ -140,11 +147,11 @@ namespace ProductivityTrackerService.Tests
                 new DayEntryDto()
             });
 
-            await Assert.ThrowsAsync<JsonException>(() => _messageProcessor.ProcessAsync(message));
+            await Assert.ThrowsAsync<JsonException>(() => _messageProcessor.ProcessAsync(message, _ctMock));
 
             _dayEntriesServiceMock
                 .Verify(service => service
-                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>()), Times.Once());
+                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>(), _ctMock), Times.Once());
 
             Assert.Empty(_messageProcessor.DayEntriesList);
         }

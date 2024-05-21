@@ -13,6 +13,7 @@ namespace ProductivityTrackerService.Tests
     {
         private readonly Fixture _fixture;
         private readonly Mock<IDayEntriesRepository> _dayEntriesRepositoryMock;
+        private readonly CancellationToken _ctMock;
         private readonly DayEntriesService _dayEntriesService;
 
         public DayEntriesServiceShould()
@@ -20,6 +21,7 @@ namespace ProductivityTrackerService.Tests
             _fixture = new Fixture();
 
             _dayEntriesRepositoryMock = new Mock<IDayEntriesRepository>();
+            _ctMock = new CancellationToken();
 
             _dayEntriesService = new DayEntriesService(_dayEntriesRepositoryMock.Object);
         }
@@ -50,10 +52,10 @@ namespace ProductivityTrackerService.Tests
             var dayEntryDtos = _fixture.Create<IEnumerable<DayEntryDto>>();
 
             _dayEntriesRepositoryMock
-                .Setup(_ => _.InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryEntity>>()));
+                .Setup(_ => _.InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryEntity>>(), _ctMock));
 
             //ACT
-            await _dayEntriesService.InsertDayEntriesAsync(dayEntryDtos);
+            await _dayEntriesService.InsertDayEntriesAsync(dayEntryDtos, _ctMock);
 
             //ASSERT
             _dayEntriesRepositoryMock.VerifyAll();

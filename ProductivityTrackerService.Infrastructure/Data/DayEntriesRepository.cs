@@ -1,32 +1,36 @@
-﻿using EFCore.BulkExtensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ProductivityTrackerService.Infrastructure.Data
 {
     public class DayEntriesRepository : IDayEntriesRepository
     {
-        private readonly IDbContextFactory<ProductivityServiceDbContext> _dbContextFactory;
+        private readonly ProductivityServiceDbContext _dbContext;
 
-        public DayEntriesRepository(IDbContextFactory<ProductivityServiceDbContext> dbContextFactory)
+        public DayEntriesRepository(ProductivityServiceDbContext dbContext)
         {
-            _dbContextFactory = dbContextFactory;
+            _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<DayEntryEntity>> GetDayEntriesAsync()
         {
-            using var context = _dbContextFactory.CreateDbContext();
-            return await context.DayEntries.OrderBy(entry => entry.Id).ToListAsync();
+            return await _dbContext.DayEntries.OrderBy(entry => entry.Id)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
-        public async Task InsertDayEntriesAsync(IEnumerable<DayEntryEntity> dayEntries)
+        public async Task InsertDayEntriesAsync(
+            IEnumerable<DayEntryEntity> dayEntries, CancellationToken ct)
         {
-            using var context = _dbContextFactory.CreateDbContext();
-            await context.BulkInsertAsync(dayEntries);
+            ct.ThrowIfCancellationRequested();
+
+            await _dbContext.DayEntries.AddRangeAsync(dayEntries, ct);
+            await _dbContext.SaveChangesAsync(ct);
         }
     }
 }
