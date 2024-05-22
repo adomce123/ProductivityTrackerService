@@ -2,6 +2,7 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Interfaces;
 using System.Text.Json;

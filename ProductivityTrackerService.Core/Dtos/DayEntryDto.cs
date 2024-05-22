@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace ProductivityTrackerService.Core.Entities
+namespace ProductivityTrackerService.Core.DTOs
 {
     public class DayEntryDto
     {

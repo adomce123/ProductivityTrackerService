@@ -1,4 +1,5 @@
-﻿using ProductivityTrackerService.Core.Entities;
+﻿using ProductivityTrackerService.Core.DTOs;
+using ProductivityTrackerService.Core.Entities;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

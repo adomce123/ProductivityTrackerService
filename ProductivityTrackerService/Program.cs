@@ -2,11 +2,11 @@ using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using ProductivityTrackerService;
+using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Core.Configuration;
 using ProductivityTrackerService.Core.Interfaces;
-using ProductivityTrackerService.Core.Services;
 using ProductivityTrackerService.Infrastructure.Data;
+using ProductivityTrackerService.Infrastructure.Data.Repositories;
 using ProductivityTrackerService.Infrastructure.Messaging;
 using Serilog;
 
@@ -25,16 +25,17 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         JobStorage.Current = new SqlServerStorage(connectionString);
 
-        services.AddDbContextFactory<ProductivityServiceDbContext>(
+        services.AddDbContext<ProductivityServiceDbContext>(
             options => options.UseSqlServer(connectionString));
 
         services.AddScoped<IDayEntriesRepository, DayEntriesRepository>();
 
         services.AddScoped<IDayEntriesService, DayEntriesService>();
 
-        services.AddSingleton<IMessageProcessor, MessageProcessorService>();
+        services.AddSingleton<IMessageProcessorService, MessageProcessorService>();
 
         services.AddSingleton<IKafkaConsumer, KafkaConsumer>();
+        services.AddSingleton<IKafkaProducer, KafkaProducer>();
 
         services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
 
