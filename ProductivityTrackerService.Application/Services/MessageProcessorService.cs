@@ -20,7 +20,10 @@ namespace ProductivityTrackerService.Application.Services
         private readonly IKafkaProducer _kafkaProducer;
         private readonly AsyncRetryPolicy _retryPolicy;
 
-        public MessageProcessorService(IServiceScopeFactory scopeFactory, ILogger<MessageProcessorService> logger, IKafkaProducer kafkaProducer)
+        public MessageProcessorService(
+            IServiceScopeFactory scopeFactory,
+            ILogger<MessageProcessorService> logger,
+            IKafkaProducer kafkaProducer)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
@@ -59,6 +62,30 @@ namespace ProductivityTrackerService.Application.Services
             _dayEntriesQueue.Enqueue(dayEntry);
         }
 
+        public async Task HandleNotProcessedMessages(List<DayEntryDto>? batch = null)
+        {
+            if (batch == null)
+                batch = new List<DayEntryDto>();
+
+            if (_dayEntriesQueue.Count > 0)
+            {
+                while (_dayEntriesQueue.TryDequeue(out var dayEntry))
+                {
+                    batch.Add(dayEntry);
+                }
+            }
+
+            foreach (var msg in batch)
+                _logger.LogError($"Sending to error topic with id {msg.Id}");
+
+            var errorMessage = JsonSerializer.Serialize(batch);
+
+            await _retryPolicy.ExecuteAsync(async () =>
+            {
+                await _kafkaProducer.ProduceAsync("error_topic", errorMessage);
+            });
+        }
+
         private void FireAndForgetInsertDayEntriesBatch(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
@@ -86,6 +113,9 @@ namespace ProductivityTrackerService.Application.Services
                 {
                     await _retryPolicy.ExecuteAsync(async () =>
                     {
+                        _logger.LogInformation("Trying to save batch to database..");
+                        throw new InvalidOperationException("OH NOOOO!!!");
+
                         await using var serviceScope = _scopeFactory.CreateAsyncScope();
                         var scopedDayEntriesService = serviceScope.ServiceProvider.GetRequiredService<IDayEntriesService>();
 
@@ -96,15 +126,9 @@ namespace ProductivityTrackerService.Application.Services
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Failed to insert day entries batch after retries. Sending to error topic.");
-                    await SendToErrorTopicAsync(batch);
+                    await HandleNotProcessedMessages(batch);
                 }
             }
-        }
-
-        private async Task SendToErrorTopicAsync(List<DayEntryDto> batch)
-        {
-            var errorMessage = JsonSerializer.Serialize(batch);
-            await _kafkaProducer.ProduceAsync("error_topic", errorMessage);
         }
     }
 }

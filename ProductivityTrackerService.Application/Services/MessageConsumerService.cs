@@ -61,6 +61,7 @@ namespace ProductivityTrackerService.Application.Services
             }
             finally
             {
+                await _messageProcessor.HandleNotProcessedMessages();
                 _logger.LogInformation("MessageConsumerService is stopping.");
             }
         }
