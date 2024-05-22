@@ -1,10 +1,10 @@
 using AutoFixture;
 using FluentAssertions;
 using Moq;
+using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Extensions;
 using ProductivityTrackerService.Core.Interfaces;
-using ProductivityTrackerService.Core.Services;
 using Xunit;
 
 namespace ProductivityTrackerService.Tests

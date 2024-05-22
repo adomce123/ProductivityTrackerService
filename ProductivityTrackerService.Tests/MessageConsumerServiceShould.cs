@@ -11,14 +11,14 @@ namespace ProductivityTrackerService.Tests
     public class MessageConsumerServiceShould
     {
         private readonly Mock<ILogger<MessageConsumerService>> _loggerMock;
-        private readonly Mock<IMessageProcessor> _messageProcessorMock;
+        private readonly Mock<IMessageProcessorService> _messageProcessorMock;
         private readonly Mock<IKafkaConsumer> _kafkaConsumerMock;
         private readonly MessageConsumerService _messageConsumerService;
 
         public MessageConsumerServiceShould()
         {
             _loggerMock = new Mock<ILogger<MessageConsumerService>>();
-            _messageProcessorMock = new Mock<IMessageProcessor>();
+            _messageProcessorMock = new Mock<IMessageProcessorService>();
             _kafkaConsumerMock = new Mock<IKafkaConsumer>();
 
             var serviceProvider = new Mock<IServiceProvider>();
@@ -27,7 +27,7 @@ namespace ProductivityTrackerService.Tests
                 .Returns(_kafkaConsumerMock.Object);
 
             serviceProvider
-                .Setup(x => x.GetService(typeof(IMessageProcessor)))
+                .Setup(x => x.GetService(typeof(IMessageProcessorService)))
                 .Returns(_messageProcessorMock.Object);
 
             var serviceScope = new Mock<IServiceScope>();

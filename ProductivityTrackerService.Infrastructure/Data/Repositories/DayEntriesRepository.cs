@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Infrastructure.Data
+namespace ProductivityTrackerService.Infrastructure.Data.Repositories
 {
     public class DayEntriesRepository : IDayEntriesRepository
     {

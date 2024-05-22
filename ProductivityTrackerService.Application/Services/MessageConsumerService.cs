@@ -1,21 +1,18 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProductivityTrackerService.Core.Interfaces;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Core.Services
+namespace ProductivityTrackerService.Application.Services
 {
     public class MessageConsumerService : BackgroundService
     {
         private readonly ILogger<MessageConsumerService> _logger;
         private readonly IKafkaConsumer _kafkaConsumer;
-        private readonly IMessageProcessor _messageProcessor;
+        private readonly IMessageProcessorService _messageProcessor;
 
         public MessageConsumerService(
             IKafkaConsumer kafkaConsumer,
-            IMessageProcessor messageProcessor,
+            IMessageProcessorService messageProcessor,
             ILogger<MessageConsumerService> logger)
         {
             _kafkaConsumer = kafkaConsumer;

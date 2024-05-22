@@ -1,4 +1,5 @@
-﻿using ProductivityTrackerService.Core.Entities;
+﻿using ProductivityTrackerService.Core.DTOs;
+using ProductivityTrackerService.Core.Entities;
 using System;
 using System.Collections.Generic;
 
@@ -9,7 +10,7 @@ namespace ProductivityTrackerService.Core.Extensions
         public static IEnumerable<DayEntryEntity> ToEntities(this IEnumerable<DayEntryDto> dayEntryDtos)
         {
             var dayEntryEntities = new List<DayEntryEntity>();
-            
+
             foreach (var dayEntryDto in dayEntryDtos)
             {
                 var dayEntryEntity = new DayEntryEntity

@@ -2,14 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
-    <PackageReference Include="EFCore.BulkExtensions" Version="8.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\ProductivityTrackerService.Core\ProductivityTrackerService.Core.csproj" />

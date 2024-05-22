@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ProductivityTrackerService.Application\ProductivityTrackerService.Application.csproj" />
     <ProjectReference Include="..\ProductivityTrackerService.Core\ProductivityTrackerService.Core.csproj" />
     <ProjectReference Include="..\ProductivityTrackerService.Infrastructure\ProductivityTrackerService.Infrastructure.csproj" />
   </ItemGroup>
