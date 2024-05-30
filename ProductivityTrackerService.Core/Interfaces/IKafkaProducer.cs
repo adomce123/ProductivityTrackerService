@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using ProductivityTrackerService.Core.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ProductivityTrackerService.Core.Interfaces
 {
     public interface IKafkaProducer
     {
-        Task ProduceAsync(string topic, string message);
+        Task ProduceAsync(IEnumerable<DayEntryDto> batch);
+        void Dispose();
     }
 }

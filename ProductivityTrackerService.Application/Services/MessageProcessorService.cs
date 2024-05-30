@@ -31,7 +31,7 @@ namespace ProductivityTrackerService.Application.Services
 
             _retryPolicy = Policy
                 .Handle<Exception>()
-                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                 (exception, timeSpan, retryCount, context) =>
                 {
                     _logger.LogWarning(exception, $"Attempt {retryCount} failed. Retrying in {timeSpan}.");
@@ -42,24 +42,29 @@ namespace ProductivityTrackerService.Application.Services
         {
             ct.ThrowIfCancellationRequested();
 
-            if (response.IsPartitionEOF)
-            {
-                if (_dayEntriesQueue.Count > 0)
-                    FireAndForgetInsertDayEntriesBatch(ct);
-
-                return;
-            }
-            else if (_dayEntriesQueue.Count >= BatchSize)
+            if (_dayEntriesQueue.Count >= BatchSize)
             {
                 FireAndForgetInsertDayEntriesBatch(ct);
             }
 
-            var dayEntry = JsonSerializer.Deserialize<DayEntryDto>(
-                response.Message.Value,
-                SerializerConfiguration.DefaultSerializerOptions)
-                ?? throw new ArgumentException("Could not deserialize day entry");
+            if (response.IsPartitionEOF)
+                return;
 
-            _dayEntriesQueue.Enqueue(dayEntry);
+            DayEntryDto dayEntryDto;
+            try
+            {
+                dayEntryDto = JsonSerializer.Deserialize<DayEntryDto>(
+                    response.Message.Value,
+                    SerializerConfiguration.DefaultSerializerOptions)
+                    ?? throw new ArgumentException("Could not deserialize day entry");
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException($"Provided message could not be parsed" +
+                    $" to day entry: {response.Message.Value}, with exception {ex.Message}");
+            }
+
+            _dayEntriesQueue.Enqueue(dayEntryDto);
         }
 
         public async Task HandleNotProcessedMessages(List<DayEntryDto>? batch = null)
@@ -75,14 +80,9 @@ namespace ProductivityTrackerService.Application.Services
                 }
             }
 
-            foreach (var msg in batch)
-                _logger.LogError($"Sending to error topic with id {msg.Id}");
-
-            var errorMessage = JsonSerializer.Serialize(batch);
-
             await _retryPolicy.ExecuteAsync(async () =>
             {
-                await _kafkaProducer.ProduceAsync("error_topic", errorMessage);
+                await _kafkaProducer.ProduceAsync(batch);
             });
         }
 
@@ -114,7 +114,7 @@ namespace ProductivityTrackerService.Application.Services
                     await _retryPolicy.ExecuteAsync(async () =>
                     {
                         _logger.LogInformation("Trying to save batch to database..");
-                        throw new InvalidOperationException("OH NOOOO!!!");
+                        //throw new InvalidOperationException("OH NOOOO!!!");
 
                         await using var serviceScope = _scopeFactory.CreateAsyncScope();
                         var scopedDayEntriesService = serviceScope.ServiceProvider.GetRequiredService<IDayEntriesService>();
