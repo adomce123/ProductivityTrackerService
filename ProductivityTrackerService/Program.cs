@@ -1,10 +1,8 @@
-using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ProductivityTrackerService.Application.Services;
-using ProductivityTrackerService.Core.Configuration;
 using ProductivityTrackerService.Core.Interfaces;
+using ProductivityTrackerService.Infrastructure.Configuration;
 using ProductivityTrackerService.Infrastructure.Data;
 using ProductivityTrackerService.Infrastructure.Data.Repositories;
 using ProductivityTrackerService.Infrastructure.Messaging;
@@ -13,7 +11,7 @@ using Serilog;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureWebHostDefaults(builder =>
     {
-        builder.Configure(app => { app.UseHangfireDashboard(); });
+        builder.Configure(app => { });
     })
     .ConfigureServices((hostBuilderContext, services) =>
     {
@@ -21,9 +19,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         var connectionString = configuration["ConnectionStrings:ProductivityServiceDb"];
 
-        services.Configure<ConsumerConfiguration>(configuration.GetSection("DayEntriesConsumer"));
-
-        JobStorage.Current = new SqlServerStorage(connectionString);
+        services.Configure<KafkaSettings>(configuration.GetSection("Kafka").GetSection("Consumers"));
 
         services.AddDbContext<ProductivityServiceDbContext>(
             options => options.UseSqlServer(connectionString));
@@ -34,19 +30,11 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IMessageProcessorService, MessageProcessorService>();
 
-        services.AddSingleton<IKafkaConsumer, KafkaConsumer>();
-        services.AddSingleton<IKafkaProducer, KafkaProducer>();
+        services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
 
-        services.AddHangfire(config => config.UseSqlServerStorage(connectionString));
+        services.AddHostedService<DayEntryConsumerService>();
+        services.AddHostedService<FailedEntriesConsumerService>();
 
-        services.AddHangfireServer();
-
-        //RecurringJob.AddOrUpdate<IDayEntriesService>(
-        //"get_all_day_entries",
-        //_ => _.GetDayEntriesAsync(),
-        //Cron.Daily());
-
-        services.AddHostedService<MessageConsumerService>();
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
