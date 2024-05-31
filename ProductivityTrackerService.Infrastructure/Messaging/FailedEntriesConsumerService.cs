@@ -15,16 +15,13 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
         private readonly ILogger<FailedEntriesConsumerService> _logger;
         private readonly IConsumer<Null, string> _consumer;
         private readonly IMessageProcessorService _messageProcessor;
-        private readonly IKafkaProducer _kafkaProducer;
 
         public FailedEntriesConsumerService(
             IMessageProcessorService messageProcessor,
-            IKafkaProducer kafkaProducer,
             ILogger<FailedEntriesConsumerService> logger,
             IOptions<KafkaSettings> configuration)
         {
             _messageProcessor = messageProcessor;
-            _kafkaProducer = kafkaProducer;
             _logger = logger;
 
             var consumerSettings = configuration.Value.FailedDayEntryConsumerSettings;
@@ -86,7 +83,6 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
                 await _messageProcessor.HandleNotProcessedMessages();
                 _logger.LogInformation($"{typeof(FailedEntriesConsumerService)} is stopping.");
                 _consumer.Close();
-                _kafkaProducer.Dispose();
             }
         }
     }

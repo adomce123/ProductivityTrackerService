@@ -16,6 +16,7 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
         private readonly IProducer<Null, string> _producer;
         private readonly KafkaConsumerSettings _configuration;
         private readonly ILogger<FailedEntriesProducerService> _logger;
+        private bool _disposed = false;
 
         public FailedEntriesProducerService(
             IOptions<KafkaSettings> options,
@@ -58,7 +59,24 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
 
         public void Dispose()
         {
-            _producer?.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    // Dispose managed resources
+                    _producer?.Dispose();
+                }
+
+                // Dispose unmanaged resources here if any
+
+                _disposed = true;
+            }
         }
     }
 }
