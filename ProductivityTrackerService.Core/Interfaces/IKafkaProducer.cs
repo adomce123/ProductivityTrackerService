@@ -7,6 +7,5 @@ namespace ProductivityTrackerService.Core.Interfaces
     public interface IKafkaProducer
     {
         Task ProduceAsync(IEnumerable<DayEntryDto> batch);
-        void Dispose();
     }
 }

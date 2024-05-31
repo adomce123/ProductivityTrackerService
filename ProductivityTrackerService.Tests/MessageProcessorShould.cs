@@ -85,7 +85,7 @@ namespace ProductivityTrackerService.Tests
             var dayEntryDto = new DayEntryDto
             {
                 Id = 3041,
-                Date = new DateTime(2023, 9, 15),
+                Date = new DateTime(2023, 9, 15, 0, 0, 0, DateTimeKind.Utc),
                 WeekDay = "Friday",
                 WakeUpTime = new TimeSpan(),
                 ScreenTime = new TimeSpan(),
