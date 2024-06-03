@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using ProductivityTrackerService;
 using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Core.Interfaces;
 using ProductivityTrackerService.Infrastructure.Configuration;
 using ProductivityTrackerService.Infrastructure.Data;
 using ProductivityTrackerService.Infrastructure.Data.Repositories;
 using ProductivityTrackerService.Infrastructure.Messaging;
+using ProductivityTrackerService.Infrastructure.Messaging.ProductivityTrackerService.Infrastructure.Messaging;
 using Serilog;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -32,8 +35,34 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
 
-        services.AddHostedService<DayEntryConsumerService>();
-        services.AddHostedService<FailedEntriesConsumerService>();
+        services.AddSingleton(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<KafkaSettings>>();
+
+            return new GenericConsumer(
+                "DayEntryConsumer",
+                serviceProvider.GetRequiredService<IMessageProcessorService>(),
+                serviceProvider.GetRequiredService<ILogger<GenericConsumer>>(),
+                options.Value.DayEntryConsumerSettings
+            );
+        });
+        //ervices.AddHostedService(serviceProvider => serviceProvider.GetRequiredService<GenericConsumer>());
+
+        services.AddSingleton(serviceProvider =>
+        {
+            var options = serviceProvider.GetRequiredService<IOptions<KafkaSettings>>();
+
+            return new GenericConsumer(
+                "FailedDayEntryConsumer",
+                serviceProvider.GetRequiredService<IMessageProcessorService>(),
+                serviceProvider.GetRequiredService<ILogger<GenericConsumer>>(),
+                options.Value.FailedDayEntryConsumerSettings
+            );
+        });
+
+        services.AddMultipleHostedServices(typeof(GenericConsumer));
+
+        services.PrintServices();
 
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
