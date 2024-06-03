@@ -11,7 +11,6 @@ namespace ProductivityTrackerService.Infrastructure.Configuration
 
     public class KafkaConsumerSettings
     {
-        public string? ConsumerName { get; set; }
         public string? Topic { get; set; }
         public ConsumerConfig? ConsumerConfig { get; set; }
     }
