@@ -11,38 +11,33 @@
 
     namespace ProductivityTrackerService.Infrastructure.Messaging
     {
-        public class GenericConsumer : BackgroundService
+        public class BaseConsumer : BackgroundService
         {
-            private readonly ILogger<GenericConsumer> _logger;
-            private readonly KafkaConsumerSettings _consumerSettings;
-            private readonly string _consumerName;
+            private readonly ILogger<BaseConsumer> _logger;
             private readonly IMessageProcessorService _messageProcessor;
             private readonly IConsumer<Null, string> _consumer;
 
-            public GenericConsumer(
-                string consumerName,
+            public BaseConsumer(
                 IMessageProcessorService messageProcessor,
-                ILogger<GenericConsumer> logger,
+                ILogger<BaseConsumer> logger,
                 KafkaConsumerSettings consumerSettings)
             {
-                _consumerName = consumerName;
                 _messageProcessor = messageProcessor;
                 _logger = logger;
-                _consumerSettings = consumerSettings;
-                _consumer = new ConsumerBuilder<Null, string>(_consumerSettings.ConsumerConfig).Build();
-                _consumer.Subscribe(_consumerSettings.Topic);
+                _consumer = new ConsumerBuilder<Null, string>(consumerSettings.ConsumerConfig).Build();
+                _consumer.Subscribe(consumerSettings.Topic);
             }
 
             protected override async Task ExecuteAsync(CancellationToken stoppingToken)
             {
-                _logger.LogInformation($"{_consumerSettings.ConsumerName} service started.");
+                _logger.LogInformation($"{GetType().Name} service started.");
 
                 var consumerTask = Task.Run(() => RunConsumerLoop(stoppingToken), stoppingToken);
 
                 await consumerTask;
             }
 
-            public async Task RunConsumerLoop(CancellationToken stoppingToken)
+            private async Task RunConsumerLoop(CancellationToken stoppingToken)
             {
                 try
                 {
@@ -52,7 +47,7 @@
 
                         if (response != null)
                         {
-                            _logger.LogInformation($"{_consumerSettings.ConsumerName} consumed: {response.Message?.Value}");
+                            _logger.LogInformation($"{GetType().Name} consumed: {response.Message?.Value}");
 
                             try
                             {
@@ -60,7 +55,7 @@
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, $"{_consumerSettings.ConsumerName} message " +
+                                _logger.LogError(ex, $"{GetType().Name} message " +
                                     $"processing failed with exception: {ex.Message}");
                             }
                             finally
@@ -75,17 +70,17 @@
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogInformation($"{_consumerSettings.ConsumerName} operation was cancelled.");
+                    _logger.LogInformation($"{GetType().Name} operation was cancelled.");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"{_consumerSettings.ConsumerName}.{nameof(ExecuteAsync)} threw an exception.");
+                    _logger.LogError(ex, $"{GetType().Name}.{nameof(ExecuteAsync)} threw an exception.");
                 }
                 finally
                 {
                     _consumer.Close();
                     await _messageProcessor.HandleNotProcessedMessages();
-                    _logger.LogInformation($"{_consumerSettings.ConsumerName} is stopping.");
+                    _logger.LogInformation($"{GetType().Name} is stopping.");
                 }
             }
         }
