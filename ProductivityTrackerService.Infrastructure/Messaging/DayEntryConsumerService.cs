@@ -25,7 +25,7 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
             _logger = logger;
             var consumerSettings = options.Value.DayEntryConsumerSettings;
 
-            _consumer = new ConsumerBuilder<Null, string>(consumerSettings.ConsumerConfig).Build();
+
             _consumer.Subscribe(consumerSettings.Topic);
         }
 
