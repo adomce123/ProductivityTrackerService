@@ -13,7 +13,7 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
 {
     public class FailedEntriesProducerService : IKafkaProducer, IDisposable
     {
-        private readonly IProducer<Null, string> _producer;
+        private readonly IProducer<int, string> _producer;
         private readonly KafkaConsumerSettings _configuration;
         private readonly ILogger<FailedEntriesProducerService> _logger;
         private bool _disposed = false;
@@ -26,7 +26,7 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
             var bootstrapServers = _configuration.ConsumerConfig?.BootstrapServers;
 
             var config = new ProducerConfig { BootstrapServers = bootstrapServers };
-            _producer = new ProducerBuilder<Null, string>(config).Build();
+            _producer = new ProducerBuilder<int, string>(config).Build();
             _logger = logger;
         }
 
@@ -36,8 +36,9 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
             {
                 foreach (DayEntryDto failedMsg in batch)
                 {
-                    var message = new Message<Null, string>
+                    var message = new Message<int, string>
                     {
+                        Key = 2,
                         Value = JsonSerializer.Serialize(failedMsg)
                     };
 
@@ -47,7 +48,7 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
                     _logger.LogInformation($"Produced failed message: {message.Value}");
                 }
             }
-            catch (ProduceException<Null, string> ex)
+            catch (ProduceException<int, string> ex)
             {
                 _logger.LogError($"Kafka produce error: {ex.Error.Reason}");
             }

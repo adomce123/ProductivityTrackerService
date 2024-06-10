@@ -36,7 +36,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHostedService<FailedEntriesConsumerService>();
 
         //services.PrintRegisteredServices();
-
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
