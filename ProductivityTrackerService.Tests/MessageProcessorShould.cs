@@ -1,7 +1,9 @@
 ﻿using AutoFixture;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
+using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Interfaces;
@@ -17,6 +19,7 @@ namespace ProductivityTrackerService.Tests
         private readonly CancellationToken _ctMock;
         private readonly Mock<IDayEntriesService> _dayEntriesServiceMock;
         private readonly Mock<IServiceScopeFactory> _serviceScopeFactoryMock;
+        private readonly Mock<IKafkaProducer> _kafkaProducerMock;
         private readonly MessageProcessorService _messageProcessor;
 
         public MessageProcessorShould()
@@ -30,15 +33,19 @@ namespace ProductivityTrackerService.Tests
 
             _serviceScopeFactoryMock = new Mock<IServiceScopeFactory>();
 
+            _kafkaProducerMock = new Mock<IKafkaProducer>();
+
+            var loggerMock = new Mock<ILogger<MessageProcessorService>>();
+
             _messageProcessor = new MessageProcessorService(
-                _serviceScopeFactoryMock.Object, _dayEntriesServiceMock.Object);
+                _serviceScopeFactoryMock.Object, loggerMock.Object, _kafkaProducerMock.Object);
         }
 
         [Fact]
         public async Task NotInsertIfEofAndListEmpty()
         {
             //ARRANGE
-            var message = new ConsumeResult<Null, string>()
+            var message = new ConsumeResult<int, string>()
             {
                 IsPartitionEOF = true
             };
@@ -62,7 +69,7 @@ namespace ProductivityTrackerService.Tests
         public async Task InsertIfEofAndListNotEmpty()
         {
             //ARRANGE
-            var message = new ConsumeResult<Null, string>()
+            var message = new ConsumeResult<int, string>()
             {
                 IsPartitionEOF = true
             };

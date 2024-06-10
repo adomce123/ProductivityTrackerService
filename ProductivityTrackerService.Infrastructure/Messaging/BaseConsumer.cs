@@ -15,7 +15,7 @@
         {
             private readonly ILogger<BaseConsumer> _logger;
             private readonly IMessageProcessorService _messageProcessor;
-            private readonly IConsumer<Null, string> _consumer;
+            private readonly IConsumer<int, string> _consumer;
 
             public BaseConsumer(
                 IMessageProcessorService messageProcessor,
@@ -24,7 +24,7 @@
             {
                 _messageProcessor = messageProcessor;
                 _logger = logger;
-                _consumer = new ConsumerBuilder<Null, string>(consumerSettings.ConsumerConfig).Build();
+                _consumer = new ConsumerBuilder<int, string>(consumerSettings.ConsumerConfig).Build();
                 _consumer.Subscribe(consumerSettings.Topic);
             }
 
@@ -47,7 +47,7 @@
 
                         if (response != null)
                         {
-                            _logger.LogInformation($"{GetType().Name} consumed: {response.Message?.Value}");
+                            _logger.LogInformation($"{GetType().Name} consumed from partition: {response.Partition}: {response.Message?.Value}");
 
                             try
                             {

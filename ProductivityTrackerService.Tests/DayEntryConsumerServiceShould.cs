@@ -3,21 +3,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProductivityTrackerService.Core.Interfaces;
-using ProductivityTrackerService.Core.Services;
+using ProductivityTrackerService.Infrastructure.Messaging;
 using Xunit;
 
 namespace ProductivityTrackerService.Tests
 {
-    public class MessageConsumerServiceShould
+    public class DayEntryConsumerServiceShould
     {
-        private readonly Mock<ILogger<MessageConsumerService>> _loggerMock;
+        private readonly Mock<ILogger<DayEntryConsumerService>> _loggerMock;
         private readonly Mock<IMessageProcessorService> _messageProcessorMock;
         private readonly Mock<IKafkaConsumer> _kafkaConsumerMock;
-        private readonly MessageConsumerService _messageConsumerService;
+        private readonly DayEntryConsumerService _dayEntryConsumerService;
 
-        public MessageConsumerServiceShould()
+        public DayEntryConsumerServiceShould()
         {
-            _loggerMock = new Mock<ILogger<MessageConsumerService>>();
+            _loggerMock = new Mock<ILogger<DayEntryConsumerService>>();
             _messageProcessorMock = new Mock<IMessageProcessorService>();
             _kafkaConsumerMock = new Mock<IKafkaConsumer>();
 
@@ -38,8 +38,8 @@ namespace ProductivityTrackerService.Tests
                 .Setup(x => x.CreateScope())
                 .Returns(serviceScope.Object);
 
-            _messageConsumerService = new MessageConsumerService(
-                serviceScopeFactory.Object, _loggerMock.Object);
+            _dayEntryConsumerService = new DayEntryConsumerService(
+                _messageProcessorMock.Object, serviceScopeFactory.Object, _loggerMock.Object);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace ProductivityTrackerService.Tests
             _messageProcessorMock.Setup(_ => _.ProcessAsync(consumeResult));
 
             //ACT
-            await _messageConsumerService.StartAsync(cancellationTokenSource.Token);
+            await _dayEntryConsumerService.StartAsync(cancellationTokenSource.Token);
 
             //ASSERT
             _kafkaConsumerMock
@@ -95,7 +95,7 @@ namespace ProductivityTrackerService.Tests
                 .ThrowsAsync(new Exception("Processing failed"));
 
             //ACT
-            await _messageConsumerService.StartAsync(cancellationTokenSource.Token);
+            await _dayEntryConsumerService.StartAsync(cancellationTokenSource.Token);
 
             //ASSERT
             var exceptionThrown = await Assert.ThrowsAsync<Exception>

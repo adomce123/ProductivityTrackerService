@@ -38,7 +38,7 @@ namespace ProductivityTrackerService.Application.Services
                 });
         }
 
-        public async Task ProcessAsync(ConsumeResult<Null, string> response, CancellationToken ct)
+        public Task ProcessAsync(ConsumeResult<int, string> response, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
@@ -48,7 +48,7 @@ namespace ProductivityTrackerService.Application.Services
             }
 
             if (response.IsPartitionEOF)
-                return;
+                return Task.CompletedTask;
 
             DayEntryDto dayEntryDto;
             try
@@ -65,6 +65,8 @@ namespace ProductivityTrackerService.Application.Services
             }
 
             _dayEntriesQueue.Enqueue(dayEntryDto);
+
+            return Task.CompletedTask;
         }
 
         public async Task HandleNotProcessedMessages(List<DayEntryDto>? batch = null)
@@ -114,7 +116,7 @@ namespace ProductivityTrackerService.Application.Services
                     await _retryPolicy.ExecuteAsync(async () =>
                     {
                         _logger.LogInformation("Trying to save batch to database..");
-                        //throw new InvalidOperationException("OH NOOOO!!!");
+
 
                         await using var serviceScope = _scopeFactory.CreateAsyncScope();
                         var scopedDayEntriesService = serviceScope.ServiceProvider.GetRequiredService<IDayEntriesService>();

@@ -1,6 +1,7 @@
 using AutoFixture;
 using FluentAssertions;
 using Moq;
+using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Entities;
 using ProductivityTrackerService.Core.Extensions;
