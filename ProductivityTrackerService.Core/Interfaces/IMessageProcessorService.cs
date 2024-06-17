@@ -9,6 +9,7 @@ namespace ProductivityTrackerService.Core.Interfaces
     public interface IMessageProcessorService
     {
         Task ProcessAsync(ConsumeResult<int, string> response, CancellationToken ct);
+        Task InsertDayEntriesBatchInternalAsync(CancellationToken ct);
         Task HandleNotProcessedMessages(List<DayEntryDto>? batch = null);
     }
 }

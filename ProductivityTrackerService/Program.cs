@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Application.Services;
+using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Interfaces;
 using ProductivityTrackerService.Infrastructure.Configuration;
 using ProductivityTrackerService.Infrastructure.Data;
@@ -33,6 +34,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IMessageProcessorService, MessageProcessorService>();
 
         services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
+
+        services.AddSingleton<IQueue<DayEntryDto>, ConcurrentQueueWrapper<DayEntryDto>>();
 
         services.AddSingleton<DayEntryConsumerService>(provider =>
         {

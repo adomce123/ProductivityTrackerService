@@ -6,7 +6,6 @@ using Polly.Retry;
 using ProductivityTrackerService.Application.Serialization;
 using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Interfaces;
-using System.Collections.Concurrent;
 using System.Text.Json;
 
 namespace ProductivityTrackerService.Application.Services
@@ -15,7 +14,7 @@ namespace ProductivityTrackerService.Application.Services
     {
         private const int BatchSize = 5;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ConcurrentQueue<DayEntryDto> _dayEntriesQueue = new ConcurrentQueue<DayEntryDto>();
+        private readonly IQueue<DayEntryDto> _dayEntriesQueue;
         private readonly ILogger<MessageProcessorService> _logger;
         private readonly IKafkaProducer _kafkaProducer;
         private readonly AsyncRetryPolicy _retryPolicy;
@@ -23,11 +22,13 @@ namespace ProductivityTrackerService.Application.Services
         public MessageProcessorService(
             IServiceScopeFactory scopeFactory,
             ILogger<MessageProcessorService> logger,
-            IKafkaProducer kafkaProducer)
+            IKafkaProducer kafkaProducer,
+            IQueue<DayEntryDto> dayEntriesQueue)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
             _kafkaProducer = kafkaProducer;
+            _dayEntriesQueue = dayEntriesQueue;
 
             _retryPolicy = Policy
                 .Handle<Exception>()
@@ -95,7 +96,7 @@ namespace ProductivityTrackerService.Application.Services
             _ = InsertDayEntriesBatchInternalAsync(ct);
         }
 
-        private async Task InsertDayEntriesBatchInternalAsync(CancellationToken ct)
+        public async Task InsertDayEntriesBatchInternalAsync(CancellationToken ct)
         {
             List<DayEntryDto> batch = new List<DayEntryDto>();
 
@@ -116,7 +117,6 @@ namespace ProductivityTrackerService.Application.Services
                     await _retryPolicy.ExecuteAsync(async () =>
                     {
                         _logger.LogInformation("Trying to save batch to database..");
-
 
                         await using var serviceScope = _scopeFactory.CreateAsyncScope();
                         var scopedDayEntriesService = serviceScope.ServiceProvider.GetRequiredService<IDayEntriesService>();
