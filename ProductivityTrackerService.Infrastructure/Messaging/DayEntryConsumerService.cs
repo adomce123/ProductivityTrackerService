@@ -1,9 +1,6 @@
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Core.Interfaces;
-using ProductivityTrackerService.Infrastructure.Configuration;
-using ProductivityTrackerService.Infrastructure.Messaging.ProductivityTrackerService.Infrastructure.Messaging;
 
 namespace ProductivityTrackerService.Infrastructure.Messaging
 {
@@ -12,9 +9,10 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
         public DayEntryConsumerService(
             IMessageProcessorService messageProcessor,
             ILogger<DayEntryConsumerService> logger,
-            IOptions<KafkaSettings> options,
+            string? topicName,
             IConsumer<int, string> consumer)
-            : base(messageProcessor, logger, options.Value.DayEntryConsumerSettings, consumer)
-        { }
+            : base(messageProcessor, logger, topicName, consumer)
+        {
+        }
     }
 }

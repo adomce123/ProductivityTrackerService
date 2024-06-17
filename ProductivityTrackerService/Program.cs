@@ -34,37 +34,33 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
 
-        services.AddSingleton(provider =>
-        {
-            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
-            var consumerConfig = kafkaSettings.DayEntryConsumerSettings.ConsumerConfig;
-            return new ConsumerBuilder<int, string>(consumerConfig).Build();
-        });
-
-        services.AddHostedService(provider =>
+        services.AddSingleton<DayEntryConsumerService>(provider =>
         {
             var messageProcessor = provider.GetRequiredService<IMessageProcessorService>();
             var logger = provider.GetRequiredService<ILogger<DayEntryConsumerService>>();
-            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>();
-            var consumer = provider.GetRequiredService<IConsumer<int, string>>();
-            return new DayEntryConsumerService(messageProcessor, logger, kafkaSettings, consumer);
-        });
-
-        services.AddSingleton(provider =>
-        {
             var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
-            var consumerConfig = kafkaSettings.FailedDayEntryConsumerSettings.ConsumerConfig;
-            return new ConsumerBuilder<int, string>(consumerConfig).Build();
+            var dayEntrySettings = kafkaSettings.DayEntryConsumerSettings;
+            var consumer = new ConsumerBuilder<int, string>(dayEntrySettings.ConsumerConfig).Build();
+            return new DayEntryConsumerService(messageProcessor, logger, dayEntrySettings.Topic, consumer);
         });
 
-        services.AddHostedService(provider =>
+        services.AddHostedService<DayEntryConsumerService>(provider =>
+            provider.GetRequiredService<DayEntryConsumerService>()
+        );
+
+        services.AddSingleton<FailedEntriesConsumerService>(provider =>
         {
             var messageProcessor = provider.GetRequiredService<IMessageProcessorService>();
             var logger = provider.GetRequiredService<ILogger<FailedEntriesConsumerService>>();
-            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>();
-            var consumer = provider.GetRequiredService<IConsumer<int, string>>();
-            return new FailedEntriesConsumerService(messageProcessor, logger, kafkaSettings, consumer);
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+            var failedDayEntrySettings = kafkaSettings.FailedDayEntryConsumerSettings;
+            var consumer = new ConsumerBuilder<int, string>(failedDayEntrySettings.ConsumerConfig).Build();
+            return new FailedEntriesConsumerService(messageProcessor, logger, failedDayEntrySettings.Topic, consumer);
         });
+
+        services.AddHostedService<FailedEntriesConsumerService>(provider =>
+            provider.GetRequiredService<FailedEntriesConsumerService>()
+        );
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
