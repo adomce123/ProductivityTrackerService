@@ -20,11 +20,12 @@
             public BaseConsumer(
                 IMessageProcessorService messageProcessor,
                 ILogger<BaseConsumer> logger,
-                KafkaConsumerSettings consumerSettings)
+                KafkaConsumerSettings consumerSettings,
+                IConsumer<int, string> consumer)
             {
                 _messageProcessor = messageProcessor;
                 _logger = logger;
-                _consumer = new ConsumerBuilder<int, string>(consumerSettings.ConsumerConfig).Build();
+                _consumer = consumer;
                 _consumer.Subscribe(consumerSettings.Topic);
             }
 

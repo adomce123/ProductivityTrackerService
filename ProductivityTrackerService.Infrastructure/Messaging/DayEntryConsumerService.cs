@@ -1,3 +1,4 @@
+using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Core.Interfaces;
@@ -11,8 +12,9 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
         public DayEntryConsumerService(
             IMessageProcessorService messageProcessor,
             ILogger<DayEntryConsumerService> logger,
-            IOptions<KafkaSettings> options)
-            : base(messageProcessor, logger, options.Value.DayEntryConsumerSettings)
+            IOptions<KafkaSettings> options,
+            IConsumer<int, string> consumer)
+            : base(messageProcessor, logger, options.Value.DayEntryConsumerSettings, consumer)
         { }
     }
 }
