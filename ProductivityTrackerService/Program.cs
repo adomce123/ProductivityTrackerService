@@ -1,5 +1,7 @@
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Core.Interfaces;
 using ProductivityTrackerService.Infrastructure.Configuration;
@@ -32,10 +34,37 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
 
-        services.AddHostedService<DayEntryConsumerService>();
-        services.AddHostedService<FailedEntriesConsumerService>();
+        services.AddSingleton(provider =>
+        {
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+            var consumerConfig = kafkaSettings.DayEntryConsumerSettings.ConsumerConfig;
+            return new ConsumerBuilder<int, string>(consumerConfig).Build();
+        });
 
-        //services.PrintRegisteredServices();
+        services.AddHostedService(provider =>
+        {
+            var messageProcessor = provider.GetRequiredService<IMessageProcessorService>();
+            var logger = provider.GetRequiredService<ILogger<DayEntryConsumerService>>();
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>();
+            var consumer = provider.GetRequiredService<IConsumer<int, string>>();
+            return new DayEntryConsumerService(messageProcessor, logger, kafkaSettings, consumer);
+        });
+
+        services.AddSingleton(provider =>
+        {
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+            var consumerConfig = kafkaSettings.FailedDayEntryConsumerSettings.ConsumerConfig;
+            return new ConsumerBuilder<int, string>(consumerConfig).Build();
+        });
+
+        services.AddHostedService(provider =>
+        {
+            var messageProcessor = provider.GetRequiredService<IMessageProcessorService>();
+            var logger = provider.GetRequiredService<ILogger<FailedEntriesConsumerService>>();
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>();
+            var consumer = provider.GetRequiredService<IConsumer<int, string>>();
+            return new FailedEntriesConsumerService(messageProcessor, logger, kafkaSettings, consumer);
+        });
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
