@@ -1,5 +1,7 @@
+using Confluent.Kafka;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Core.Interfaces;
 using ProductivityTrackerService.Infrastructure.Configuration;
@@ -32,10 +34,33 @@ IHost host = Host.CreateDefaultBuilder(args)
 
         services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
 
-        services.AddHostedService<DayEntryConsumerService>();
-        services.AddHostedService<FailedEntriesConsumerService>();
+        services.AddSingleton<DayEntryConsumerService>(provider =>
+        {
+            var messageProcessor = provider.GetRequiredService<IMessageProcessorService>();
+            var logger = provider.GetRequiredService<ILogger<DayEntryConsumerService>>();
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+            var dayEntrySettings = kafkaSettings.DayEntryConsumerSettings;
+            var consumer = new ConsumerBuilder<int, string>(dayEntrySettings.ConsumerConfig).Build();
+            return new DayEntryConsumerService(messageProcessor, logger, dayEntrySettings.Topic, consumer);
+        });
 
-        //services.PrintRegisteredServices();
+        services.AddHostedService<DayEntryConsumerService>(provider =>
+            provider.GetRequiredService<DayEntryConsumerService>()
+        );
+
+        services.AddSingleton<FailedEntriesConsumerService>(provider =>
+        {
+            var messageProcessor = provider.GetRequiredService<IMessageProcessorService>();
+            var logger = provider.GetRequiredService<ILogger<FailedEntriesConsumerService>>();
+            var kafkaSettings = provider.GetRequiredService<IOptions<KafkaSettings>>().Value;
+            var failedDayEntrySettings = kafkaSettings.FailedDayEntryConsumerSettings;
+            var consumer = new ConsumerBuilder<int, string>(failedDayEntrySettings.ConsumerConfig).Build();
+            return new FailedEntriesConsumerService(messageProcessor, logger, failedDayEntrySettings.Topic, consumer);
+        });
+
+        services.AddHostedService<FailedEntriesConsumerService>(provider =>
+            provider.GetRequiredService<FailedEntriesConsumerService>()
+        );
     })
     .UseSerilog((hostingContext, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(hostingContext.Configuration)
