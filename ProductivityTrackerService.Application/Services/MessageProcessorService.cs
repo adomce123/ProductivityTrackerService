@@ -79,7 +79,8 @@ namespace ProductivityTrackerService.Application.Services
             {
                 while (_dayEntriesQueue.TryDequeue(out var dayEntry))
                 {
-                    batch.Add(dayEntry);
+                    if (dayEntry != null)
+                        batch.Add(dayEntry);
                 }
             }
 
@@ -102,7 +103,8 @@ namespace ProductivityTrackerService.Application.Services
 
             while (_dayEntriesQueue.TryDequeue(out var dayEntry))
             {
-                batch.Add(dayEntry);
+                if (dayEntry != null)
+                    batch.Add(dayEntry);
 
                 if (batch.Count >= BatchSize)
                 {

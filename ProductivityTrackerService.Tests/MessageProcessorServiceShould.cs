@@ -141,5 +141,40 @@ namespace ProductivityTrackerService.Tests
                 .Verify(service => service
                 .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>(), _ctMock), Times.Once());
         }
+
+        [Fact]
+        public async Task InsertDayEntriesBatchInternalAsync_ShouldCallKafkaProducer_OnError_WithRetry()
+        {
+            //ARRANGE
+            var dayEntry = new DayEntryDto { Id = 1, Date = DateTime.Now };
+            _queueMock.Setup(q => q.TryDequeue(out dayEntry)).Returns(true);
+
+            _dayEntriesServiceMock
+                .Setup(d => d.InsertDayEntriesAsync(It.IsAny<List<DayEntryDto>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Test exception"));
+
+            //ACT
+            await _messageProcessor.InsertDayEntriesBatchInternalAsync(_ctMock);
+
+            //ARRANGE
+            _dayEntriesServiceMock
+                .Verify(service => service
+                .InsertDayEntriesAsync(It.IsAny<IEnumerable<DayEntryDto>>(), _ctMock), Times.Exactly(2));
+
+            _kafkaProducerMock
+                .Verify(_ => _.ProduceAsync(It.IsAny<List<DayEntryDto>>()), Times.Exactly(1));
+        }
+
+        [Fact]
+        public async Task ProcessAsync_ShouldThrowOperationCanceledException_WhenTokenIsCanceled()
+        {
+            // Arrange
+            var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel the token
+
+            // Act & Assert
+            await Assert.ThrowsAsync<OperationCanceledException>(() =>
+                _messageProcessor.ProcessAsync(It.IsAny<ConsumeResult<int, string>>(), cts.Token));
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace ProductivityTrackerService.Infrastructure.Messaging
         private readonly ConcurrentQueue<T> _concurrentQueue = new();
         public int Count => _concurrentQueue.Count;
 
-        public bool TryDequeue(out T message)
+        public bool TryDequeue(out T? message)
         {
             return _concurrentQueue.TryDequeue(out message);
         }
