@@ -6,7 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ProductivityTrackerService.Infrastructure.Messaging
+namespace ProductivityTrackerService.Infrastructure.Messaging.Base
 {
     public abstract class BaseConsumer : BackgroundService
     {

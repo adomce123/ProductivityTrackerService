@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ProductivityTrackerService.Application.Services;
+using ProductivityTrackerService.Application.Utilities;
 using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Interfaces;
 using ProductivityTrackerService.Infrastructure.Configuration;

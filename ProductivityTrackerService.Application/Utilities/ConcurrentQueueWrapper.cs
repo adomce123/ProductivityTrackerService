@@ -1,7 +1,7 @@
 ﻿using ProductivityTrackerService.Core.Interfaces;
 using System.Collections.Concurrent;
 
-namespace ProductivityTrackerService.Infrastructure.Messaging
+namespace ProductivityTrackerService.Application.Utilities
 {
     public class ConcurrentQueueWrapper<T> : IQueue<T>
     {

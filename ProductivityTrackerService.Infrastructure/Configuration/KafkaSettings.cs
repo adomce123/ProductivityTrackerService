@@ -4,14 +4,14 @@ namespace ProductivityTrackerService.Infrastructure.Configuration
 {
     public class KafkaSettings
     {
-        public KafkaConsumerSettings DayEntryConsumerSettings { get; set; } = new();
-        public KafkaConsumerSettings FailedDayEntryConsumerSettings { get; set; } = new();
+        public KafkaConsumerSettings DayEntryConsumerSettings { get; init; } = new();
+        public KafkaConsumerSettings FailedDayEntryConsumerSettings { get; init; } = new();
 
     }
 
     public class KafkaConsumerSettings
     {
-        public string? Topic { get; set; }
-        public ConsumerConfig? ConsumerConfig { get; set; }
+        public string? Topic { get; init; }
+        public ConsumerConfig? ConsumerConfig { get; init; }
     }
 }

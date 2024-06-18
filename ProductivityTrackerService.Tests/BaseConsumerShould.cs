@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProductivityTrackerService.Core.Interfaces;
-using ProductivityTrackerService.Infrastructure.Messaging;
+using ProductivityTrackerService.Infrastructure.Messaging.Base;
 using Xunit;
 
 namespace ProductivityTrackerService.Tests
