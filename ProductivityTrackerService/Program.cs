@@ -6,6 +6,7 @@ using ProductivityTrackerService.Application.Services;
 using ProductivityTrackerService.Application.Utilities;
 using ProductivityTrackerService.Core.DTOs;
 using ProductivityTrackerService.Core.Interfaces;
+using ProductivityTrackerService.Infrastructure.Caching;
 using ProductivityTrackerService.Infrastructure.Configuration;
 using ProductivityTrackerService.Infrastructure.Data;
 using ProductivityTrackerService.Infrastructure.Data.Repositories;
@@ -37,6 +38,8 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddSingleton<IKafkaProducer, FailedEntriesProducerService>();
 
         services.AddSingleton<IQueue<DayEntryDto>, ConcurrentQueueWrapper<DayEntryDto>>();
+
+        services.AddSingleton<ISharedCache, RedisService>();
 
         services.AddSingleton<DayEntryConsumerService>(provider =>
         {

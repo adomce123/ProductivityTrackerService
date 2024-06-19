@@ -15,6 +15,7 @@ namespace ProductivityTrackerService.Application.Services
         private const int BatchSize = 5;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IQueue<DayEntryDto> _dayEntriesQueue;
+        private readonly ISharedCache _sharedCache;
         private readonly ILogger<MessageProcessorService> _logger;
         private readonly IKafkaProducer _kafkaProducer;
         private readonly AsyncRetryPolicy _retryPolicy;
@@ -23,13 +24,14 @@ namespace ProductivityTrackerService.Application.Services
             IServiceScopeFactory scopeFactory,
             ILogger<MessageProcessorService> logger,
             IKafkaProducer kafkaProducer,
-            IQueue<DayEntryDto> dayEntriesQueue)
+            IQueue<DayEntryDto> dayEntriesQueue,
+            ISharedCache sharedCache)
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
             _kafkaProducer = kafkaProducer;
             _dayEntriesQueue = dayEntriesQueue;
-
+            _sharedCache = sharedCache;
             _retryPolicy = Policy
                 .Handle<Exception>()
                 .WaitAndRetryAsync(1, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
@@ -39,17 +41,20 @@ namespace ProductivityTrackerService.Application.Services
                 });
         }
 
-        public Task ProcessAsync(ConsumeResult<int, string> response, CancellationToken ct)
+        public async Task ProcessAsync(ConsumeResult<int, string> response, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
             if (_dayEntriesQueue.Count >= BatchSize)
             {
+                var cacheResult = await _sharedCache.GetAsync<DayEntryDto>("someKey");
+                _logger.LogInformation($"Reading from cache: {cacheResult}");
+
                 FireAndForgetInsertDayEntriesBatch(ct);
             }
 
             if (response.IsPartitionEOF)
-                return Task.CompletedTask;
+                return;
 
             DayEntryDto dayEntryDto;
             try
@@ -65,9 +70,12 @@ namespace ProductivityTrackerService.Application.Services
                     $" to day entry: {response.Message.Value}, with exception {ex.Message}");
             }
 
+            await _sharedCache.SetAsync("someKey", dayEntryDto);
+            _logger.LogInformation("Writing to cache");
+
             _dayEntriesQueue.Enqueue(dayEntryDto);
 
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         }
 
         public async Task HandleNotProcessedMessages(List<DayEntryDto>? batch = null)
